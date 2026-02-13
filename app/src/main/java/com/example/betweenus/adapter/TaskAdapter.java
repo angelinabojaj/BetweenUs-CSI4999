@@ -9,4 +9,6 @@ package com.example.betweenus.adapter;
 // - Dynamically change background color
 // - Handle delete click callback
 public class TaskAdapter {
+
+
 }
