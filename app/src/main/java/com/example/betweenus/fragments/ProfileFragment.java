@@ -1,5 +1,16 @@
 package com.example.betweenus.fragments;
 
+// PURPOSE:
+//  Displays user profile information.
+//
+//  WHAT THIS FILE SHOULD DO:
+// - Show profile picture
+// - Show username
+// - Show bio
+// - Handle Add/View Friends button
+// - Display daily schedule
+// - Handle settings menu click
+
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;

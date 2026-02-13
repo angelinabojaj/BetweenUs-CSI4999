@@ -1,5 +1,12 @@
 package com.example.betweenus.adapter;
 
+// PURPOSE:
+// Displays list of friends in RecyclerView.
+//
+// WHAT THIS FILE SHOULD DO:
+// - Inflate item_friend.xml
+// - Bind friend username + profile image
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

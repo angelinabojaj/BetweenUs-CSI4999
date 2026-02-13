@@ -10,6 +10,16 @@ import android.view.ViewGroup;
 
 import com.example.betweenus.R;
 
+//PURPOSE:
+// Manages task assignment and to-do list system.
+//
+//  WHAT THIS FILE SHOULD DO:
+// - Display list of tasks
+// - Handle Add Task button
+// - Handle delete task action
+// - Enforce premium limits
+
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link ProductivityFragment#newInstance} factory method to

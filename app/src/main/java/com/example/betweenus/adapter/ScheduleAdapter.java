@@ -13,6 +13,13 @@ import com.example.betweenus.model.ScheduleItem;
 
 import java.util.List;
 
+// PURPOSE:
+// Displays user's daily schedule inside ProfileFragment.
+//
+// WHAT THIS FILE SHOULD DO:
+// - Inflate item_schedule.xml
+// - Bind time + activity title
+
 public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHolder> {
 
     private List<ScheduleItem> scheduleList;
