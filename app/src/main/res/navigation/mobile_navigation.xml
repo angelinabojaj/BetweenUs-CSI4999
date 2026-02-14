@@ -12,14 +12,25 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_productivity"
+        android:name="com.example.betweenus.fragments.ProductivityFragment"
+        android:label="Productivity"
+        tools:layout="@layout/fragment_productivity" />
+
+    <!-- Placeholder fragments for other bottom nav items -->
+    <fragment
+        android:id="@+id/navigation_chat"
         android:name="com.example.betweenus.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        android:label="Chat" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
+        android:id="@+id/navigation_memories"
         android:name="com.example.betweenus.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:label="Memories" />
+
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="com.example.betweenus.ui.notifications.NotificationsFragment"
+        android:label="Profile" />
+
 </navigation>
