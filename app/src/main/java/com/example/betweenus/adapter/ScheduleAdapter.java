@@ -58,3 +58,4 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
         }
     }
 }
+// checking to see if it works
