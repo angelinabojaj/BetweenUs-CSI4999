@@ -265,13 +265,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // " ORDER BY " + COL_FOLLOWERS_COUNT + " DESC LIMIT 20";
         return db.rawQuery(searchQuery, new String[]{"%" + query + "%", "%" + query + "%"});
     }
-
+    // Create User
+    public long insertUser(String name, String phone, String email, String password, String bio, Integer avatar) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        values.put(COL_PHONE, phone);
+        values.put(COL_EMAIL, email);
+        values.put(COL_PASSWORD, password);
+        values.put(COL_BIO, bio);
+        values.put(COL_AVATAR, avatar);
+        return db.insert(TABLE_USERS, null, values);
+    }
+    //Insert New Task
+    public long createTask(Integer taskCreator, String goal, Integer isPrivate, String dueDate) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_TASK_CREATOR, taskCreator);
+        values.put(COL_TASK_GOAL, goal);
+        values.put(COL_IS_PRIVATE, isPrivate);
+        values.put(COL_DUE_DATE, dueDate);
+        return db.insert(TABLE_TASKS, null, values);
+    }
+    //Get Tasks For User
     public Cursor getUserTasks(String query) {
         SQLiteDatabase db = this.getReadableDatabase();
         String searchQuery = "SELECT * FROM " + TABLE_TASKS +
                 " WHERE " + COL_TASK_CREATOR + " LIKE ?";
         return db.rawQuery(searchQuery, new String[]{"%" + query + "%"});
     }
+    //List of the names of all users
     public Cursor getUsers() {
         SQLiteDatabase db = this.getReadableDatabase();
         String searchQuery = "SELECT UserName FROM " + TABLE_USERS;
@@ -279,7 +302,111 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.rawQuery(searchQuery,null);
     }
 
+    //Gets user given name
+    public Cursor getUserByName(String name) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_USERS, null, COL_NAME + "=?", new String[]{name}, null, null, null);
+    }
 
+    public Cursor getUserID(String userName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_USERS, null, COL_NAME + "=?", new String[]{userName}, null, null, null);
+    }
 
+    // Post Operations
+    public long newFriend(int firstFriendID, int secondFriendID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_FIRST_FRIEND_ID, firstFriendID);
+        values.put(COL_SECOND_FRIEND_ID, secondFriendID);
+        updateFriendCount(firstFriendID, 1);
+        updateFriendCount(secondFriendID, 1);
+        return db.insert(TABLE_FRIENDS, null, values);
+    }
+
+    private void updateFriendCount(int userId, int change) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("UPDATE " + TABLE_USERS + " SET " + COL_FRIEND_COUNT + " = " + COL_FRIEND_COUNT + " + " + change + " WHERE " + COL_USER_ID + " = " + userId);
+    }
+
+    public Cursor getUserFriends(Integer userID) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String searchQuery = "SELECT * FROM " + TABLE_FRIENDS +
+                " WHERE " + COL_FIRST_FRIEND_ID + " = ? " +
+                " OR " + COL_SECOND_FRIEND_ID + " = ?";
+
+        return db.rawQuery(searchQuery, new String[]{
+                String.valueOf(userID),
+                String.valueOf(userID)
+        });
+    }
+    //updates user bio
+    public void updateUserBio(Integer userID, String newBio) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String updateQuery = "UPDATE " + TABLE_USERS +
+                " SET " + COL_BIO + " = ? " +
+                " WHERE " + COL_USER_ID + " = ?";
+
+        db.execSQL(updateQuery, new Object[]{
+                newBio,
+                userID
+        });
+    }
+    //marks task complete
+    public void markTaskComplete(int taskID) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String updateQuery = "UPDATE " + TABLE_TASKS +
+                " SET " + COL_IS_COMPLETE + " = 1 " +
+                " WHERE " + COL_TASK_ID + " = ?";
+
+        db.execSQL(updateQuery, new Object[]{taskID});
+    }
+
+    //generic update profile function
+    public void updateColumnValue(String columnToUpdate,
+                                  Object newValue,
+                                  String whereColumn,
+                                  Object whereValue) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Validate column names against allowed constants
+        if (!isValidColumn(columnToUpdate) || !isValidColumn(whereColumn)) {
+            throw new IllegalArgumentException("Invalid column name");
+        }
+
+        String query = "UPDATE " + TABLE_USERS +
+                " SET " + columnToUpdate + " = ? " +
+                " WHERE " + whereColumn + " = ?";
+
+        db.execSQL(query, new Object[]{newValue, whereValue});
+    }
+
+    //column validation check
+    private boolean isValidColumn(String column) {
+        return column.equals(COL_NAME) ||
+                column.equals(COL_PASSWORD) ||
+                column.equals(COL_PHONE) ||
+                column.equals(COL_EMAIL) ||
+                column.equals(COL_Premium) ||
+                column.equals(COL_SCHEDULE) ||
+                column.equals(COL_POINTS) ||
+                column.equals(COL_AVATAR) ||
+                column.equals(COL_MOOD);
+    }
+    //retrieves user schedule
+    public Cursor getUserSchedule(Integer userID) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String searchQuery = "SELECT " + COL_SCHEDULE +
+                " FROM " + TABLE_USERS +
+                " WHERE " + COL_USER_ID + " = ?";
+
+        return db.rawQuery(searchQuery,
+                new String[]{String.valueOf(userID)});
+    }
 }
 
