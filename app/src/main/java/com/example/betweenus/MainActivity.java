@@ -1,14 +1,13 @@
 package com.example.betweenus;
 
 import android.os.Bundle;
-import android.view.MenuItem;
 
 import com.example.betweenus.fragments.MemoriesFragment;
+import com.example.betweenus.fragments.ProductivityFragment;
 import com.example.betweenus.fragments.ProfileFragment;
 import com.example.betweenus.ui.home.HomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -47,7 +46,10 @@ public class MainActivity extends AppCompatActivity {
 
                 } else if (id == R.id.navigation_profile) {
                     selectedFragment = new ProfileFragment();
+                } else if (id == R.id.navigation_productivity) {
+                    selectedFragment = new ProductivityFragment();
                 }
+
 
                 if (selectedFragment != null) {
                     getSupportFragmentManager()
