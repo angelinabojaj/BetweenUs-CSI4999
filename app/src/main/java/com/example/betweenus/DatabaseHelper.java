@@ -3,6 +3,7 @@ package com.example.betweenus;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -15,9 +16,10 @@ import java.io.OutputStream;
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "BetweenUs.db";
     public static final int DATABASE_VERSION = 5; // increase this
-
-
-    // Users Table
+    private static String DB_PATH = "/data/data/BetweenUs/databases/";
+    private SQLiteDatabase db;
+    private Context myContext;
+    //Users Table
     private static final String TABLE_USERS = "users";
     private static final String COL_USER_ID = "UserID";
     private static final String COL_NAME = "UserName";
@@ -104,9 +106,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.myContext = context;
+    }
 
-        // Copy the database if it does not exist
-        copyDatabase(context);
+    public void createDatabase() throws IOException {
+        boolean dbExist = checkDataBase();
+
+        if(dbExist) {
+
+        } else {
+            this.getReadableDatabase();
+            copyDatabase(myContext);
+        }
+    }
+
+    private boolean checkDataBase() {
+        SQLiteDatabase checkDB = null;
+
+        try {
+            File dbFile = myContext.getDatabasePath(DATABASE_NAME); // correct dynamic path
+            checkDB = SQLiteDatabase.openDatabase(dbFile.getPath(), null, SQLiteDatabase.OPEN_READONLY);
+        } catch (SQLException e) {
+            // database does not exist yet
+        }
+
+        if (checkDB != null) {
+            checkDB.close();
+        }
+
+        return checkDB != null;
     }
 
     @Override
@@ -219,6 +247,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
+    public void openDataBase() throws SQLException{
+        //Open the database
+        String myPath = myContext.getDatabasePath(DATABASE_NAME).getPath();
+        db = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READWRITE);
+
+    }
+
+    @Override
+    public synchronized void close() {
+        if (db != null) {
+            db.close();
+        }
+    }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
@@ -240,7 +282,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (!dbPath.exists()) {
             dbPath.getParentFile().mkdirs();
 
-            try (InputStream input = context.getAssets().open("databases/" + DATABASE_NAME);
+            try (InputStream input = context.getAssets().open(DATABASE_NAME);
                  OutputStream output = new FileOutputStream(dbPath)) {
 
                 byte[] buffer = new byte[1024];
