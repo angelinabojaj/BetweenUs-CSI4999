@@ -16,7 +16,7 @@ import java.io.OutputStream;
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "BetweenUs.db";
     public static final int DATABASE_VERSION = 5; // increase this
-    private static String DB_PATH = "/data/data/BetweenUs/databases/";
+    //private static String DB_PATH = "/data/data/BetweenUs/databases/";
     private SQLiteDatabase db;
     private Context myContext;
     //Users Table
@@ -110,15 +110,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void createDatabase() throws IOException {
-        boolean dbExist = checkDataBase();
+        File dbFile = myContext.getDatabasePath(DATABASE_NAME);
 
-        if(dbExist) {
+        // Make sure the /databases/ folder exists
+        if (!dbFile.getParentFile().exists()) {
+            dbFile.getParentFile().mkdirs();
+        }
 
-        } else {
-            this.getReadableDatabase();
+        // Copy the database from assets if it doesn't exist yet
+        if (!dbFile.exists()) {
             copyDatabase(myContext);
         }
     }
+
+    private void copyDatabase(Context context) throws IOException {
+        InputStream input = context.getAssets().open(DATABASE_NAME);
+        OutputStream output = new FileOutputStream(context.getDatabasePath(DATABASE_NAME));
+
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = input.read(buffer)) > 0) {
+            output.write(buffer, 0, length);
+        }
+
+        output.flush();
+        output.close();
+        input.close();
+    }
+
+
 
     private boolean checkDataBase() {
         SQLiteDatabase checkDB = null;
@@ -139,111 +159,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // Create Users Table
-//        String createUsersTable = "CREATE TABLE " + TABLE_USERS + " ("
-//                + COL_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-//                + COL_NAME + " TEXT, "
-//                + COL_EMAIL + " TEXT UNIQUE, "
-//                + COL_PHONE + " TEXT, "
-//                + COL_BIO + " TEXT, "
-//                + COL_PREMIUM + " INTEGER, "
-//                + COL_AVATAR + " INTEGER, "
-//                + COL_MOOD + " INTEGER, "
-//                + COL_FRIEND_COUNT + " INTEGER DEFAULT 0, "
-//                + COL_POINTS + " INTEGER DEFAULT 0, "
-        //        + COL_SCHEDULE + " TEXT, "
-        //        + COL_PASSWORD + " TEXT)"
-//        db.execSQL(createUsersTable);
-//
-//        // Create avatar Table
-//        String createAvatarTable = "CREATE TABLE " + TABLE_AVATAR_OWNERSHIP + " ("
-//                + COL_OWNERSHIP_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-//                + COL_USER_ID + " INTEGER, "
-//                + COL_AVATAR_OWNED + " INTEGER, "
-//                + "FOREIGN KEY(" + COL_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + COL_USER_ID + "))";
-//        db.execSQL(createAvatarTable);
-//
-//        // Create Dashboard Table
-//       String createDashboardTable = "CREATE TABLE " + TABLE_DASHBOARD + " ("
-//        + COL_Post_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-//        + COL_SENDER_ID + " INTEGER, "
-//        + COL_DASHBOARD_ID + " INTEGER, "
-//        + COL_POST_TEXT + " TEXT, "
-//        + COL_POST_TIME +  " DATETIME DEFAULT CURRENT_TIMESTAMP, "
-//        + "FOREIGN KEY(" + COL_SENDER_ID + ") REFERENCES " + TABLE_USERS + "(" + COL_USER_ID + "), "
-//        + "FOREIGN KEY(" + COL_DASHBOARD_ID + ") REFERENCES " + TABLE_USERS + "(" + COL_USER_ID + "))";
-//        db.execSQL(createDashboardTable);
-//
-//        // Create Friends Table
-//        String createLibraryTable = "CREATE TABLE " + TABLE_FRIENDS + " ("
-//                + COL_FRIENDSHIP_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-//                + COL_FIRST_FRIEND_ID + " INTEGER, "
-//                + COL_SECOND_FRIEND_ID + " INTEGER, "
-//                + COL_FRIENDSHIP_DATE + " DATETIME DEFAULT CURRENT_TIMESTAMP, "
-//                + "FOREIGN KEY(" + COL_FIRST_FRIEND_ID + ") REFERENCES " + TABLE_USERS + "(" + COL_USER_ID + "), "
-//                + "FOREIGN KEY(" + COL_SECOND_FRIEND_ID + ") REFERENCES " + TABLE_USERS + "(" + COL_USER_ID + "))";
-//        db.execSQL(createLibraryTable);
-//
-//        // Create MEMORIES Table
-//        String createMemoriesTable = "CREATE TABLE " + TABLE_MEMORIES + " ("
-//                + COL_MEMORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-//                + COL_POSTER_ID + " INTEGER, "
-//                + COL_MEMORY_TITLE + " TEXT, "
-//                + COL_MEMORY_BODY + " TEXT, "
-//                + COL_MEDIA_TYPE + " TEXT, "
-//                + COL_MEDIA_URL + " TEXT, "
-//                + COL_TIME_STAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP, "
-//                + COL_LIKES + " INTEGER, "
-//                + "FOREIGN KEY(" + COL_POSTER_ID + ") REFERENCES " + TABLE_USERS + "(" + COL_USER_ID + "))";
-//        db.execSQL(createMemoriesTable);
-//
-//        // Create Messages Table
-//        String createMessagesTable = "CREATE TABLE " + TABLE_MESSAGES + " ("
-//                + COL_MESSAGE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-//                + COL_MESSAGE_SENDER_ID + " INTEGER, "
-//                + COL_RECEIVER_ID + " INTEGER, "
-//                + COL_MESSAGE_TEXT + " TEXT, "
-//                + COL_MESSAGE_TIME + " DATETIME DEFAULT CURRENT_TIMESTAMP, "
-//                + "FOREIGN KEY(" + COL_MESSAGE_SENDER_ID + ") REFERENCES " + TABLE_USERS + "(" + COL_USER_ID + "), "
-//                + "FOREIGN KEY(" + COL_RECEIVER_ID + ") REFERENCES " + TABLE_USERS + "(" + COL_USER_ID + "))";
-//        db.execSQL(createMessagesTable);
-//
-//        // Create Tasks Table
-//        String createTaskTable = "CREATE TABLE " + TABLE_TASKS + " ("
-//                + COL_Task_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-//                + COL_TASK_CREATOR + " INTEGER, "
-//                + COL_TASK_GOAL+ " TEXT, "
-//                + COL_IS_COMPLETE + " INTEGER, "
-//                + COL_IS_PRIVATE + " INTEGER, "
-//                + COL_DUE_DATE + " INTEGER, "
-//                + "FOREIGN KEY(" + COL_TASK_CREATOR + ") REFERENCES " + TABLE_USERS + "(" + COL_USER_ID + "))";
-//        db.execSQL(createTaskTable);
-
-        // Create SubTasks Table
-//        String createSubTaskTable = "CREATE TABLE " + TABLE_SUBTASKS + " ("
-//                + COL_SUBTASK_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-//                + COL_ORIGINAL_TASK_ID + " INTEGER, "
-//                + COL_ASSIGNEE_ID + " INTEGER, "
-//                + COL_SUBTASK_COMPLETE + " INTEGER, "
-//                + "FOREIGN KEY(" + COL_ORIGINAL_TASK_ID + ") REFERENCES " + TABLE_TASKS + "(" + COL_TASK_ID+ ")
-//                + "FOREIGN KEY(" + COL_ASSIGNEE_ID + ") REFERENCES " + TABLE_USERS + "(" + COL_USER_ID + "))";
-//        db.execSQL(createSubTaskTable);
-
-        //        // Create Suggestions Table
-//        String createSuggestionsTable = "CREATE TABLE " + TABLE_SUGGESTIONS + " ("
-//                + COL_SUGGESTION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-//                + COL_SUGGESTION + " TEXT, "
-//                + COL_KEYWORDS + " TEXT)"
-//        db.execSQL(createSuggestionsTable);
-        //        // Create History Table
-//        String createHistoryTable = "CREATE TABLE " + TABLE_USER_HISTORY + " ("
-//                + COL_RECORD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-//                + COL_USER_HISTORY_ID + " INTEGER, "
-//                + COL_RECORD_CATEGORY + " TEXT, "
-//                + COL_RECORD_VALUE + " INTEGER, "
-//                + COL_TIME_RECORDED + " DATETIME DEFAULT CURRENT_TIMESTAMP, "
-//                + "FOREIGN KEY(" + COL_USER_HISTORY_ID + ") REFERENCES " + TABLE_USERS + "(" + COL_USER_ID + "))";
-//        db.execSQL(createHistoryTable);
+        //Copying database so no creation here
 
     }
 
@@ -276,28 +192,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    private void copyDatabase(Context context) {
-        File dbPath = context.getDatabasePath(DATABASE_NAME);
-
-        if (!dbPath.exists()) {
-            dbPath.getParentFile().mkdirs();
-
-            try (InputStream input = context.getAssets().open(DATABASE_NAME);
-                 OutputStream output = new FileOutputStream(dbPath)) {
-
-                byte[] buffer = new byte[1024];
-                int length;
-
-                while ((length = input.read(buffer)) > 0) {
-                    output.write(buffer, 0, length);
-                }
-
-                output.flush();
-            } catch (IOException e) {
-                throw new RuntimeException("Error copying database", e);
-            }
-        }
-    }
 
     // Search for users by username or name
     public Cursor searchUsers(String query) {
