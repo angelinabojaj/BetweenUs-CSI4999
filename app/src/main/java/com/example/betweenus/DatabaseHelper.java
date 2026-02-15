@@ -54,15 +54,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL_FRIENDSHIP_DATE = "Freindship_Date";
 
     // Memories Table
-    private static final String TABLE_MEMORIES = "memories";
-    private static final String COL_MEMORY_ID = "MemoryID";
-    private static final String COL_POSTER_ID = "PosterID";
-    private static final String COL_MEMORY_TITLE = "MemoryTitle";
-    private static final String COL_MEMORY_BODY = "MemoryBody";
-    private static final String COL_MEDIA_TYPE = "MediaType";
-    private static final String COL_MEDIA_URL = "MediaURL";
-    private static final String COL_TIME_STAMP = "TimeStamp";
-    private static final String COL_LIKES = "Likes";
+    public static final String TABLE_MEMORIES = "memories";
+    public static final String COL_MEMORY_ID = "MemoryID";
+    public static final String COL_POSTER_ID = "PosterID";
+    public static final String COL_MEMORY_TITLE = "MemoryTitle";
+    public static final String COL_MEMORY_BODY = "MemoryBody";
+    public static final String COL_MEDIA_TYPE = "MediaType";
+    public static final String COL_MEDIA_URL = "MediaURL";
+    public static final String COL_TIME_STAMP = "TimeStamp";
+    public static final String COL_LIKES = "Likes";
 
     // Messages Table
     private static final String TABLE_MESSAGES = "messages";
@@ -191,7 +191,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 //                + "FOREIGN KEY(" + COL_TASK_CREATOR + ") REFERENCES " + TABLE_USERS + "(" + COL_USER_ID + "))";
 //        db.execSQL(createTaskTable);
 
-         // Create SubTasks Table
+        // Create SubTasks Table
 //        String createSubTaskTable = "CREATE TABLE " + TABLE_SUBTASKS + " ("
 //                + COL_SUBTASK_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
 //                + COL_ORIGINAL_TASK_ID + " INTEGER, "
@@ -240,7 +240,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (!dbPath.exists()) {
             dbPath.getParentFile().mkdirs();
 
-            try (InputStream input = context.getAssets().open("databases/" + DATABASE_NAME);
+            try (InputStream input = context.getAssets().open(DATABASE_NAME);
                  OutputStream output = new FileOutputStream(dbPath)) {
 
                 byte[] buffer = new byte[1024];
@@ -265,6 +265,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // " ORDER BY " + COL_FOLLOWERS_COUNT + " DESC LIMIT 20";
         return db.rawQuery(searchQuery, new String[]{"%" + query + "%", "%" + query + "%"});
     }
+
     // Create User
     public long insertUser(String name, String phone, String email, String password, String bio, Integer avatar) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -277,6 +278,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_AVATAR, avatar);
         return db.insert(TABLE_USERS, null, values);
     }
+
     //Insert New Task
     public long createTask(Integer taskCreator, String goal, Integer isPrivate, String dueDate) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -287,6 +289,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_DUE_DATE, dueDate);
         return db.insert(TABLE_TASKS, null, values);
     }
+
     //Get Tasks For User
     public Cursor getUserTasks(String query) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -294,12 +297,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 " WHERE " + COL_TASK_CREATOR + " LIKE ?";
         return db.rawQuery(searchQuery, new String[]{"%" + query + "%"});
     }
+
     //List of the names of all users
     public Cursor getUsers() {
         SQLiteDatabase db = this.getReadableDatabase();
         String searchQuery = "SELECT UserName FROM " + TABLE_USERS;
         // " ORDER BY " + COL_FOLLOWERS_COUNT + " DESC LIMIT 20";
-        return db.rawQuery(searchQuery,null);
+        return db.rawQuery(searchQuery, null);
     }
 
     //Gets user given name
@@ -340,6 +344,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String.valueOf(userID)
         });
     }
+
     //updates user bio
     public void updateUserBio(Integer userID, String newBio) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -353,6 +358,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 userID
         });
     }
+
     //marks task complete
     public void markTaskComplete(int taskID) {
 
@@ -397,6 +403,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 column.equals(COL_AVATAR) ||
                 column.equals(COL_MOOD);
     }
+
     //retrieves user schedule
     public Cursor getUserSchedule(Integer userID) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -407,6 +414,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return db.rawQuery(searchQuery,
                 new String[]{String.valueOf(userID)});
+    }
+
+    //memories database functions
+
+    public Cursor getMemories() {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String searchQuery =
+                "SELECT * FROM " + TABLE_MEMORIES + " " +
+                        "JOIN " + TABLE_USERS + " " +
+                        "ON " + TABLE_MEMORIES + "." + COL_POSTER_ID +
+                        " = " + TABLE_USERS + "." + COL_USER_ID + " " +
+                        "ORDER BY " + COL_TIME_STAMP + " DESC";
+
+        return db.rawQuery(searchQuery, null);
+    }
+
+
+    public void updateMemoryLikes(int memoryID, int newLikes) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String searchQuery = "UPDATE " + TABLE_MEMORIES +
+                " SET " + COL_LIKES + " = ?" +
+                " WHERE " + COL_MEMORY_ID + " = ?";
+        db.execSQL(searchQuery, new Object[]{memoryID, newLikes});
+
     }
 }
 
