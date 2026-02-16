@@ -1,8 +1,11 @@
 package com.example.betweenus;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -12,7 +15,10 @@ import com.example.betweenus.fragments.ProfileFragment;
 import com.example.betweenus.ui.home.HomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -27,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     DatabaseHelper myDBHelper;
     public SQLiteDatabase db;
     private ActivityMainBinding binding;
+    private static final int NOTIFICATION_PERMISSION_CODE = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +48,48 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupWithNavController(binding.navView, navController);
         binding.navView.setOnNavigationItemSelectedListener(navListener);
+
+        requestNotificationPermission();
+    }
+
+    private void requestNotificationPermission() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        NOTIFICATION_PERMISSION_CODE
+                );
+                return;
+            }
+        }
+
+        // Permission already granted OR Android < 13
+        showWelcomeNotification();
+    }
+
+    private void showWelcomeNotification() {
+        NotificationHelper.showNotification(
+                this,
+                "Welcome!",
+                "Log your mood & post a memory for your friends to see!"
+        );
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == NOTIFICATION_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                showWelcomeNotification();
+            }
+        }
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener navListener =
@@ -167,7 +216,4 @@ public class MainActivity extends AppCompatActivity {
             Log.e("DB_TEST", "Database query failed", e);
         }
     }
-
-
-
 }
