@@ -104,6 +104,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL_RECORD_VALUE = "RecordValue";
     private static final String COL_TIME_RECORDED = "TimeRecorded";
 
+    // Dashboard Table
+    private static final String TABLE_COMMENTS = "comments";
+    private static final String COL_COMMENT_ID = "CommentID";
+    private static final String COL_COMMENTOR_ID = "CommentorID";
+    private static final String COL_COMMENT_MEMORY_ID = "MemoryID";
+    private static final String COL_COMMENT_BODY = "CommentBody";
+    private static final String COL_COMMENT_TIME_STAMP = "CommentTimeStamp";
+
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.myContext = context;
@@ -376,5 +384,57 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(searchQuery, new Object[]{memoryID, newLikes});
 
     }
+
+    public Cursor getPostComments(Integer postID) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String searchQuery = "SELECT " + "*" +
+                " FROM " + TABLE_COMMENTS +
+                " WHERE " + COL_COMMENT_MEMORY_ID+ " = ?";
+
+        return db.rawQuery(searchQuery,
+                new String[]{String.valueOf(postID)});
+    }
+
+    public long postComment(int memoryID, int commentorID, String commentBody) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_COMMENT_MEMORY_ID, memoryID);
+        values.put(COL_COMMENTOR_ID, commentorID);
+        values.put(COL_COMMENT_BODY, commentBody);
+        return db.insert(TABLE_COMMENTS, null, values);
+    }
+
+    public boolean login(int userID, String password) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] columns = { COL_PASSWORD };
+        String selection = COL_USER_ID + " = ?";
+        String[] selectionArgs = { String.valueOf(userID) };
+
+        Cursor cursor = db.query(
+                TABLE_USERS,
+                columns,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        boolean isValid = false;
+
+        if (cursor != null && cursor.moveToFirst()) {
+            String storedPassword = cursor.getString(
+                    cursor.getColumnIndexOrThrow(COL_PASSWORD)
+            );
+
+            isValid = password.equals(storedPassword);
+            cursor.close();
+        }
+
+        return isValid;
+    }
+
 }
 

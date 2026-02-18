@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
         createDB();
         testDatabaseQuery();
+        testLogin();
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupWithNavController(binding.navView, navController);
@@ -194,6 +195,17 @@ public class MainActivity extends AppCompatActivity {
         return myDBHelper.getUserSchedule(userID);
     }
 
+    public long postComment(int userID, int postID, String commentBody){
+        return myDBHelper.postComment(postID, userID, commentBody);
+    }
+
+    public Cursor getComments(int postID){
+        return myDBHelper.getPostComments(postID);
+    }
+
+    public boolean login(int userID, String password){
+        return myDBHelper.login(userID, password);
+    }
     private void testDatabaseQuery() {
 
         try {
@@ -215,5 +227,11 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e("DB_TEST", "Database query failed", e);
         }
+    }
+    private void testLogin(){
+       if (login(1, "pass") == true){
+           Log.e("LOG_TEST","Login Test Successful");
+       }
+       else Log.e("LOG_TEST","Login Test unsuccessful");
     }
 }
