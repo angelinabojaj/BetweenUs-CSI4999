@@ -22,8 +22,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //Users Table
     private static final String TABLE_USERS = "users";
     private static final String COL_USER_ID = "UserID";
-    private static final String COL_NAME = "UserName";
-    private static final String COL_EMAIL = "UserEmail";
+    public static final String COL_NAME = "UserName";
+    public static final String COL_EMAIL = "UserEmail";
     private static final String COL_PHONE = "UserPhone";
     private static final String COL_BIO = "UserBio";
     private static final String COL_Premium = "IsPremium";
@@ -51,8 +51,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Friends Table
     private static final String TABLE_FRIENDS = "friends";
     private static final String COL_FRIENDSHIP_ID = "FriendshipID";
-    private static final String COL_FIRST_FRIEND_ID = "First_Friend_ID";
-    private static final String COL_SECOND_FRIEND_ID = "Second_Friend_ID";
+    public static final String COL_FIRST_FRIEND_ID = "First_Friend_ID";
+    public static final String COL_SECOND_FRIEND_ID = "Second_Friend_ID";
     private static final String COL_FRIENDSHIP_DATE = "Freindship_Date";
 
     // Memories Table
@@ -259,6 +259,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Cursor getUserID(String userName) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.query(TABLE_USERS, null, COL_NAME + "=?", new String[]{userName}, null, null, null);
+    }
+
+    // I need this to convert the ID into a username for add Friend use case
+    public Cursor getUserByID(int userID) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(TABLE_USERS,
+                null,
+                COL_USER_ID + "=?",
+                new String[]{String.valueOf(userID)},
+                null,
+                null,
+                null);
     }
 
     // Post Operations

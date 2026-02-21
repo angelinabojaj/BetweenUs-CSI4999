@@ -7,6 +7,7 @@ package com.example.betweenus.adapter;
 // - Inflate item_friend.xml
 // - Bind friend username + profile image
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.betweenus.DatabaseHelper;
 import com.example.betweenus.R;
 import com.example.betweenus.model.Friend;
 
@@ -24,10 +26,14 @@ import java.util.List;
 
 public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder> {
 
+    private Context context;
     private List<Friend> friendList;
+    private DatabaseHelper dbHelper;
 
-    public FriendAdapter(List<Friend> friendList) {
+    public FriendAdapter(Context context, List<Friend> friendList) {
+        this.context = context;
         this.friendList = friendList;
+        this.dbHelper = new DatabaseHelper(context);
     }
 
     @NonNull
@@ -40,10 +46,15 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
+        Friend friend = friendList.get(position);
+        holder.username.setText(friend.getName());
+
     }
 
     @Override
     public int getItemCount() {
+
         return friendList.size();
     }
 
