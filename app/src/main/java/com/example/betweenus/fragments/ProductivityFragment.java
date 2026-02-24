@@ -1,76 +1,98 @@
 package com.example.betweenus.fragments;
 
+import android.database.Cursor;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.betweenus.DatabaseHelper;
 import com.example.betweenus.R;
+import com.example.betweenus.adapter.TaskAdapter;
+import com.example.betweenus.model.Task;
 
-//PURPOSE:
-// Manages task assignment and to-do list system.
-//
-//  WHAT THIS FILE SHOULD DO:
-// - Display list of tasks
-// - Handle Add Task button
-// - Handle delete task action
-// - Enforce premium limits
+import java.util.ArrayList;
+import java.util.List;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ProductivityFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ProductivityFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private RecyclerView recyclerView;
+    private TaskAdapter taskAdapter;
+    private List<Task> taskList;
+    private DatabaseHelper dbHelper;
+    private EditText etTaskInput;
+    private Button btnAddTask;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    // Hardcoded for now, should ideally come from user session
+    private int currentUserId = 1;
 
     public ProductivityFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ProductivityFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ProductivityFragment newInstance(String param1, String param2) {
-        ProductivityFragment fragment = new ProductivityFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_productivity, container, false);
+        View view = inflater.inflate(R.layout.fragment_productivity, container, false);
+
+        dbHelper = new DatabaseHelper(requireContext());
+        taskList = new ArrayList<>();
+
+        recyclerView = view.findViewById(R.id.taskRecyclerView);
+        etTaskInput = view.findViewById(R.id.et_task_input);
+        btnAddTask = view.findViewById(R.id.btn_add_task);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        taskAdapter = new TaskAdapter(taskList, task -> {
+            dbHelper.markTaskComplete(task.getTaskId()); // Using existing markTaskComplete as delete/complete for now
+            loadTasks();
+        });
+        recyclerView.setAdapter(taskAdapter);
+
+        loadTasks();
+
+        btnAddTask.setOnClickListener(v -> {
+            String goal = etTaskInput.getText().toString().trim();
+            if (!goal.isEmpty()) {
+                long result = dbHelper.createTask(currentUserId, goal, 0, "Today");
+                if (result != -1) {
+                    etTaskInput.setText("");
+                    loadTasks();
+                    Toast.makeText(getContext(), "Task Added", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), "Failed to add task", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(getContext(), "Please enter a task", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        return view;
+    }
+
+    private void loadTasks() {
+        taskList.clear();
+        Cursor cursor = dbHelper.getUserTasks(String.valueOf(currentUserId));
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow("TaskID"));
+                String goal = cursor.getString(cursor.getColumnIndexOrThrow("TaskGoal"));
+                String date = cursor.getString(cursor.getColumnIndexOrThrow("DueDate"));
+                int complete = cursor.getInt(cursor.getColumnIndexOrThrow("IsComplete"));
+
+                taskList.add(new Task(id, goal, date, complete == 1));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        taskAdapter.updateTasks(taskList);
     }
 }

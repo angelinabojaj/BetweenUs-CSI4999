@@ -1,16 +1,35 @@
 package com.example.betweenus.model;
 
-// PURPOSE:
-// Represents a single task in a user's to-do list.
-//
-// WHAT THIS MODEL SHOULD STORE:
-// - Task ID (for database reference)
-// - Task title
-// - Task description (optional)
-// - Due date or time
-// - Assigned by (username or user ID)
-// - Assigned to (username or user ID)
-// - Task color/category
-// - Completion status (true/false)
 public class Task {
+    private int taskId;
+    private String taskGoal;
+    private String dueDate;
+    private boolean isComplete;
+
+    public Task(int taskId, String taskGoal, String dueDate, boolean isComplete) {
+        this.taskId = taskId;
+        this.taskGoal = taskGoal;
+        this.dueDate = dueDate;
+        this.isComplete = isComplete;
+    }
+
+    public int getTaskId() {
+        return taskId;
+    }
+
+    public String getTaskGoal() {
+        return taskGoal;
+    }
+
+    public String getDueDate() {
+        return dueDate;
+    }
+
+    public boolean isComplete() {
+        return isComplete;
+    }
+
+    public void setComplete(boolean complete) {
+        isComplete = complete;
+    }
 }
