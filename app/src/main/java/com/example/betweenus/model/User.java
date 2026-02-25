@@ -13,10 +13,34 @@ package com.example.betweenus.model;
 // - Mood history (optional future)
 public class User {
 
-    private String username;
-    private String bio;
-    private int profileImageResId;
+    private int userId;
+    private String name;
+    private String mood;
+    private int avatar;
 
-    // getters + setters
+    public User(int userId, String name, String mood, int avatar) {
+        this.userId = userId;
+        this.name = name;
+        this.mood = mood;
+        this.avatar = avatar;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getMood() {
+        return mood;
+    }
+
+    public int getAvatar() {
+        return avatar;
+    }
 }
+
+
 

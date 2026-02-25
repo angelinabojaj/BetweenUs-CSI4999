@@ -7,11 +7,17 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.betweenus.model.DashboardMessage;
+import com.example.betweenus.model.Task;
+import com.example.betweenus.model.User;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "BetweenUs.db";
@@ -447,6 +453,190 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return isValid;
     }
+
+    //*** homepage methods ****
+
+// UPDATE USER MOOD
+    public void updateUserMood(int userId, String mood) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COL_MOOD, mood);
+
+        db.update(TABLE_USERS,
+                values,
+                COL_USER_ID + "=?",
+                new String[]{String.valueOf(userId)});
+    }
+
+// INSERT DASHBOARD MESSAGE
+
+    public long insertDashboardMessage(int senderId, String text) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COL_SENDER_ID, senderId);
+        values.put(COL_POST_TEXT, text);
+        values.put(COL_POST_TIME, System.currentTimeMillis());
+
+        return db.insert(TABLE_DASHBOARD, null, values);
+    }
+
+// GET DASHBOARD MESSAGES
+    public List<DashboardMessage> getValidDashboardMessages(long expirationHours) {
+
+        List<DashboardMessage> list = new ArrayList<>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        long currentTime = System.currentTimeMillis();
+        long expirationMillis = expirationHours * 60 * 60 * 1000;
+        String queryStr = "SELECT * FROM " + TABLE_DASHBOARD +
+                " ORDER BY " + COL_POST_TIME + " DESC";
+        System.out.println(queryStr);
+        Cursor cursor = db.rawQuery(
+                queryStr,
+                null
+        );
+
+        while (cursor.moveToNext()) {
+
+            long postTime = cursor.getLong(
+                    cursor.getColumnIndexOrThrow(COL_POST_TIME)
+            );
+
+//            if (currentTime - postTime <= expirationMillis) {
+
+                String text = cursor.getString(
+                        cursor.getColumnIndexOrThrow(COL_POST_TEXT)
+                );
+
+                list.add(new DashboardMessage(text));
+//            }
+        }
+
+        cursor.close();
+        return list;
+    }
+
+    // -----------------------------
+// GET TASKS FOR USER (List version)
+// -----------------------------
+    public List<Task> getTasksForUser(int userId) {
+
+        List<Task> tasks = new ArrayList<>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(
+                "SELECT * FROM " + TABLE_TASKS +
+                        " WHERE " + COL_TASK_CREATOR + " = ?",
+                new String[]{String.valueOf(userId)}
+        );
+
+        while (cursor.moveToNext()) {
+
+            int taskId = cursor.getInt(
+                    cursor.getColumnIndexOrThrow(COL_TASK_ID));
+
+            String goal = cursor.getString(
+                    cursor.getColumnIndexOrThrow(COL_TASK_GOAL));
+
+            String dueDate = cursor.getString(
+                    cursor.getColumnIndexOrThrow(COL_DUE_DATE));
+
+            int isComplete = cursor.getInt(
+                    cursor.getColumnIndexOrThrow(COL_IS_COMPLETE));
+
+            tasks.add(new Task(taskId, goal, dueDate, isComplete == 1));
+        }
+
+        cursor.close();
+        return tasks;
+    }
+
+// GET USER + FRIENDS
+    public List<User> getUserAndFriends(int userId) {
+
+        List<User> users = new ArrayList<>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Add current user first
+        Cursor userCursor = getUserByID(userId);
+
+        if (userCursor.moveToFirst()) {
+
+            String name = userCursor.getString(
+                    userCursor.getColumnIndexOrThrow(COL_NAME));
+
+            String mood = userCursor.getString(
+                    userCursor.getColumnIndexOrThrow(COL_MOOD));
+
+            int avatar = userCursor.getInt(
+                    userCursor.getColumnIndexOrThrow(COL_AVATAR));
+
+            users.add(new User(userId, name, mood, avatar));
+        }
+
+        userCursor.close();
+
+        // Get friends
+        Cursor friendCursor = getUserFriends(userId);
+
+        while (friendCursor.moveToNext()) {
+
+            int friendId;
+
+            int first = friendCursor.getInt(
+                    friendCursor.getColumnIndexOrThrow(COL_FIRST_FRIEND_ID));
+
+            int second = friendCursor.getInt(
+                    friendCursor.getColumnIndexOrThrow(COL_SECOND_FRIEND_ID));
+
+            friendId = (first == userId) ? second : first;
+
+            Cursor friendData = getUserByID(friendId);
+
+            if (friendData.moveToFirst()) {
+
+                String name = friendData.getString(
+                        friendData.getColumnIndexOrThrow(COL_NAME));
+
+                String mood = friendData.getString(
+                        friendData.getColumnIndexOrThrow(COL_MOOD));
+
+                int avatar = friendData.getInt(
+                        friendData.getColumnIndexOrThrow(COL_AVATAR));
+
+                users.add(new User(friendId, name, mood, avatar));
+            }
+
+            friendData.close();
+        }
+
+        friendCursor.close();
+
+        return users;
+    }
+
+// UPDATE USER STATUS
+//    public void updateUserStatus(int userId, String status) {
+//
+//        SQLiteDatabase db = this.getWritableDatabase();
+//
+//        ContentValues values = new ContentValues();
+//        values.put(COL_STATUS, status);
+//
+//        db.update(
+//                TABLE_USERS,
+//                values,
+//                COL_USER_ID + "=?",
+//                new String[]{String.valueOf(userId)}
+//        );
+//    }
 
 }
 

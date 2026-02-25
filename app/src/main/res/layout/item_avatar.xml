@@ -7,16 +7,19 @@
     android:padding="8dp">
 
     <TextView
-        android:id="@+id/txtAvatarName"
+        android:id="@+id/txt_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="12sp"/>
+        android:text="studying"
+        android:textSize="20sp"/>
 
     <ImageView
         android:id="@+id/imgAvatar"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:layout_width="150dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:layout_height="200dp"
         android:elevation="8dp"
-        android:src="@drawable/memorybtn_filled"/>
+        android:src="@drawable/bunny_happy"/>
 </LinearLayout>
 

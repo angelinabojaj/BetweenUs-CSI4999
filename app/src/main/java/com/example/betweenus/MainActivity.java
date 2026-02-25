@@ -12,7 +12,7 @@ import android.util.Log;
 import com.example.betweenus.fragments.MemoriesFragment;
 import com.example.betweenus.fragments.ProductivityFragment;
 import com.example.betweenus.fragments.ProfileFragment;
-import com.example.betweenus.ui.home.HomeFragment;
+import com.example.betweenus.fragments.HomeFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
@@ -39,12 +39,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
         createDB();
         testDatabaseQuery();
         testLogin();
+
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupWithNavController(binding.navView, navController);
