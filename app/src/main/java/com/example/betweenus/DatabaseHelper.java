@@ -8,8 +8,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.betweenus.model.DashboardMessage;
+import com.example.betweenus.model.MemoriesItem;
+import com.example.betweenus.model.Message;
 import com.example.betweenus.model.Task;
 import com.example.betweenus.model.User;
+import com.example.betweenus.model.UserHistory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -392,6 +395,57 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return db.rawQuery(searchQuery, null);
     }
+    public List<MemoriesItem> getMemorieList() {
+
+        List<MemoriesItem> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query =
+                "SELECT * FROM " + TABLE_MEMORIES +
+                        " ORDER BY " + COL_TIME_STAMP + " DESC";
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor != null) {
+
+            int memoryIdIndex = cursor.getColumnIndexOrThrow(COL_MEMORY_ID);
+            int posterIdIndex = cursor.getColumnIndexOrThrow(COL_POSTER_ID);
+            int titleIndex = cursor.getColumnIndexOrThrow(COL_MEMORY_TITLE);
+            int bodyIndex = cursor.getColumnIndexOrThrow(COL_MEMORY_BODY);
+            int mediaTypeIndex = cursor.getColumnIndexOrThrow(COL_MEDIA_TYPE);
+            int mediaUrlIndex = cursor.getColumnIndexOrThrow(COL_MEDIA_URL);
+            int timeStampIndex = cursor.getColumnIndexOrThrow(COL_TIME_STAMP);
+            int likesIndex = cursor.getColumnIndexOrThrow(COL_LIKES);
+
+            while (cursor.moveToNext()) {
+
+                int memoryID = cursor.getInt(memoryIdIndex);
+                int posterID = cursor.getInt(posterIdIndex);
+                String memoryTitle = cursor.getString(titleIndex);
+                String memoryBody = cursor.getString(bodyIndex);
+                String mediaType = cursor.getString(mediaTypeIndex);
+                String mediaURL = cursor.getString(mediaUrlIndex);
+                String timeStamp = cursor.getString(timeStampIndex);
+                int likes = cursor.getInt(likesIndex);
+
+                MemoriesItem memory = new MemoriesItem(
+                        memoryID,
+                        posterID,
+                        memoryTitle,
+                        memoryBody,
+                        mediaURL,
+                        timeStamp,
+                        likes
+                );
+
+                list.add(memory);
+            }
+
+            cursor.close();
+        }
+
+        return list;
+    }
 
 
     public void updateMemoryLikes(int memoryID, int newLikes) {
@@ -622,6 +676,124 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return users;
     }
 
+    public long sendMessage(int senderId, int receiverId, String text) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COL_SENDER_ID, senderId);
+        values.put(COL_RECEIVER_ID, receiverId);
+        values.put(COL_POST_TEXT, text);
+        values.put(COL_MESSAGE_TIME, System.currentTimeMillis());
+
+        return db.insert(TABLE_MESSAGES, null, values);
+    }
+
+    public List<Message> getMessages(Integer userId) {
+
+        List<Message> list = new ArrayList<>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String queryStr = "SELECT * FROM " + TABLE_MESSAGES +
+                " WHERE " + COL_SENDER_ID + " = ? OR " + COL_RECEIVER_ID + " = ?" +
+                " ORDER BY " + COL_MESSAGE_TIME;
+
+        Cursor cursor = db.rawQuery(
+                queryStr,
+                new String[]{String.valueOf(userId), String.valueOf(userId)}
+        );
+
+        if (cursor != null) {
+
+            int idIndex = cursor.getColumnIndexOrThrow(COL_MESSAGE_ID);
+            int senderIndex = cursor.getColumnIndexOrThrow(COL_SENDER_ID);
+            int receiverIndex = cursor.getColumnIndexOrThrow(COL_RECEIVER_ID);
+            int contentIndex = cursor.getColumnIndexOrThrow(COL_MESSAGE_TEXT);
+            int timeIndex = cursor.getColumnIndexOrThrow(COL_MESSAGE_TIME);
+
+            while (cursor.moveToNext()) {
+
+                int id = cursor.getInt(idIndex);
+                int senderId = cursor.getInt(senderIndex);
+                int receiverId = cursor.getInt(receiverIndex);
+                String content = cursor.getString(contentIndex);
+                String messageTime = cursor.getString(timeIndex);
+
+                Message message = new Message(
+                        id,
+                        senderId,
+                        receiverId,
+                        content,
+                        messageTime
+                );
+
+                list.add(message);
+            }
+
+            cursor.close();
+        }
+
+        return list;
+    }
+
+    public long insertUserHistory(UserHistory history) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(COL_USER_ID, history.getUserID());
+        values.put(COL_RECORD_CATEGORY, history.getRecordCategory());
+        values.put(COL_RECORD_VALUE, history.getRecordValue());
+        values.put(COL_TIME_RECORDED, history.getTimeRecorded());
+
+        return db.insert(TABLE_USER_HISTORY, null, values);
+    }
+
+    public List<UserHistory> getUserHistory(int userId) {
+
+        List<UserHistory> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query =
+                "SELECT * FROM " + TABLE_USER_HISTORY +
+                        " WHERE " + COL_USER_ID + " = ? " +
+                        " ORDER BY " + COL_TIME_RECORDED + " DESC";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+
+        if (cursor != null) {
+
+            int recordIdIndex = cursor.getColumnIndexOrThrow(COL_RECORD_ID);
+            int userIdIndex = cursor.getColumnIndexOrThrow(COL_USER_ID);
+            int categoryIndex = cursor.getColumnIndexOrThrow(COL_RECORD_CATEGORY);
+            int valueIndex = cursor.getColumnIndexOrThrow(COL_RECORD_VALUE);
+            int timeIndex = cursor.getColumnIndexOrThrow(COL_TIME_RECORDED);
+
+            while (cursor.moveToNext()) {
+
+                int recordID = cursor.getInt(recordIdIndex);
+                int uID = cursor.getInt(userIdIndex);
+                String category = cursor.getString(categoryIndex);
+                int value = cursor.getInt(valueIndex);
+                String timeRecorded = cursor.getString(timeIndex);
+
+                UserHistory history = new UserHistory(
+                        recordID,
+                        uID,
+                        category,
+                        value,
+                        timeRecorded
+                );
+
+                list.add(history);
+            }
+
+            cursor.close();
+        }
+
+        return list;
+    }
 // UPDATE USER STATUS
 //    public void updateUserStatus(int userId, String status) {
 //
