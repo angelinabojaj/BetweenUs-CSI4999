@@ -7,7 +7,9 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.betweenus.model.Comment;
 import com.example.betweenus.model.DashboardMessage;
+import com.example.betweenus.model.Friend;
 import com.example.betweenus.model.MemoriesItem;
 import com.example.betweenus.model.Message;
 import com.example.betweenus.model.Task;
@@ -259,6 +261,42 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.rawQuery(searchQuery, null);
     }
 
+    //returns list of user objects for all users
+    public List<User> getUsersList() {
+
+        List<User> userList = new ArrayList<>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String queryStr = "SELECT * FROM " + TABLE_USERS +
+                " ORDER BY " + COL_USER_ID;
+
+        Cursor cursor = db.rawQuery(queryStr, null);
+
+        if (cursor != null) {
+
+            int idIndex = cursor.getColumnIndexOrThrow(COL_USER_ID);
+            int nameIndex = cursor.getColumnIndexOrThrow(COL_NAME);
+            int moodIndex = cursor.getColumnIndexOrThrow(COL_MOOD);
+            int avatarIndex = cursor.getColumnIndexOrThrow(COL_AVATAR);
+
+            while (cursor.moveToNext()) {
+
+                int id = cursor.getInt(idIndex);
+                String name = cursor.getString(nameIndex);
+                String mood = cursor.getString(moodIndex);
+                int avatar = cursor.getInt(avatarIndex);
+
+                User user = new User(id, name, mood, avatar);
+                userList.add(user);
+            }
+
+            cursor.close();
+        }
+
+        return userList;
+    }
+
     //Gets user given name
     public Cursor getUserByName(String name) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -293,6 +331,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.insert(TABLE_FRIENDS, null, values);
     }
 
+    //Internal function for updating friend count whenever a new friendship is established
     private void updateFriendCount(int userId, int change) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("UPDATE " + TABLE_USERS + " SET " + COL_FRIEND_COUNT + " = " + COL_FRIEND_COUNT + " + " + change + " WHERE " + COL_USER_ID + " = " + userId);
@@ -309,6 +348,105 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String.valueOf(userID)
         });
     }
+
+    //Returns a list of the users friends
+    public List<Friend> getFriends(Integer userId) {
+
+        List<Friend> friendsList = new ArrayList<>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Get all friendships where the current user is involved
+        String queryStr = "SELECT * FROM " + TABLE_FRIENDS +
+                " WHERE " + COL_FIRST_FRIEND_ID + " = ? OR " + COL_SECOND_FRIEND_ID + " = ?";
+
+        Cursor cursor = db.rawQuery(
+                queryStr,
+                new String[]{String.valueOf(userId), String.valueOf(userId)}
+        );
+
+        if (cursor != null) {
+
+            int userOneIndex = cursor.getColumnIndexOrThrow(COL_FIRST_FRIEND_ID);
+            int userTwoIndex = cursor.getColumnIndexOrThrow(COL_SECOND_FRIEND_ID);
+
+            while (cursor.moveToNext()) {
+
+                int userOneId = cursor.getInt(userOneIndex);
+                int userTwoId = cursor.getInt(userTwoIndex);
+
+                // Find instance of friendship
+                int friendId = (userOneId == userId) ? userTwoId : userOneId;
+
+                // Fetches identified friend's information from Users table
+                String userQuery = "SELECT " + COL_USER_ID + ", " +
+                        COL_NAME + ", " +
+                        COL_EMAIL +
+                        " FROM " + TABLE_USERS +
+                        " WHERE " + COL_USER_ID + " = ?";
+
+                Cursor userCursor = db.rawQuery(
+                        userQuery,
+                        new String[]{String.valueOf(friendId)}
+                );
+
+                if (userCursor != null && userCursor.moveToFirst()) {
+
+                    int idIndex = userCursor.getColumnIndexOrThrow(COL_USER_ID);
+                    int nameIndex = userCursor.getColumnIndexOrThrow(COL_NAME);
+                    int emailIndex = userCursor.getColumnIndexOrThrow(COL_EMAIL);
+
+                    int id = userCursor.getInt(idIndex);
+                    String name = userCursor.getString(nameIndex);
+                    String email = userCursor.getString(emailIndex);
+
+                    Friend friend = new Friend(id, name, email);
+                    friendsList.add(friend);
+
+                    userCursor.close();
+                }
+            }
+
+            cursor.close();
+        }
+
+        return friendsList;
+    }
+    public List<Integer> getFriendUserIds(Integer userId) {
+
+        List<Integer> friendIds = new ArrayList<>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String queryStr = "SELECT * FROM " + TABLE_FRIENDS +
+                " WHERE " + COL_FIRST_FRIEND_ID + " = ? OR " + COL_SECOND_FRIEND_ID + " = ?";
+
+        Cursor cursor = db.rawQuery(
+                queryStr,
+                new String[]{String.valueOf(userId), String.valueOf(userId)}
+        );
+
+        if (cursor != null) {
+
+            int userOneIndex = cursor.getColumnIndexOrThrow(COL_FIRST_FRIEND_ID);
+            int userTwoIndex = cursor.getColumnIndexOrThrow(COL_SECOND_FRIEND_ID);
+
+            while (cursor.moveToNext()) {
+
+                int userOneId = cursor.getInt(userOneIndex);
+                int userTwoId = cursor.getInt(userTwoIndex);
+
+                int friendId = (userOneId == userId) ? userTwoId : userOneId;
+
+                friendIds.add(friendId);
+            }
+
+            cursor.close();
+        }
+
+        return friendIds;
+    }
+
 
     //updates user bio
     public void updateUserBio(Integer userID, String newBio) {
@@ -370,16 +508,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     //retrieves user schedule
-    public Cursor getUserSchedule(Integer userID) {
+//    public Cursor getUserSchedule(Integer userID) {
+//        SQLiteDatabase db = this.getReadableDatabase();
+//
+//        String searchQuery = "SELECT " + COL_SCHEDULE +
+//                " FROM " + TABLE_USERS +
+//                " WHERE " + COL_USER_ID + " = ?";
+//
+//        return db.rawQuery(searchQuery,
+//                new String[]{String.valueOf(userID)});
+//    }
+    //returns schedule string from Users table
+    public String getUserSchedule(Integer userID) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String searchQuery = "SELECT " + COL_SCHEDULE +
                 " FROM " + TABLE_USERS +
                 " WHERE " + COL_USER_ID + " = ?";
 
-        return db.rawQuery(searchQuery,
+        Cursor cursor = db.rawQuery(searchQuery,
                 new String[]{String.valueOf(userID)});
+
+        String schedule = null;
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                schedule = cursor.getString(0); // Only column selected
+            }
+            cursor.close();
+        }
+
+        return schedule;
     }
+
 
     //memories database functions
 
@@ -395,6 +556,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return db.rawQuery(searchQuery, null);
     }
+    //returns list of All memories
     public List<MemoriesItem> getMemorieList() {
 
         List<MemoriesItem> list = new ArrayList<>();
@@ -447,7 +609,78 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return list;
     }
 
+    public List<MemoriesItem> getFriendMemories(Integer userId) {
 
+        List<MemoriesItem> memoryList = new ArrayList<>();
+        List<Integer> friendIds = getFriendUserIds(userId);
+
+        if (friendIds.isEmpty()) {
+            return memoryList; // No friends → no memories
+        }
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Build placeholders (?, ?, ?, ...)
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < friendIds.size(); i++) {
+            placeholders.append("?");
+            if (i < friendIds.size() - 1) {
+                placeholders.append(",");
+            }
+        }
+
+        String queryStr = "SELECT * FROM " + TABLE_MEMORIES +
+                " WHERE " + COL_POSTER_ID + " IN (" + placeholders.toString() + ")" +
+                " ORDER BY " + COL_TIME_STAMP + " DESC";
+
+        // Convert Integer list to String array for query args
+        String[] args = new String[friendIds.size()];
+        for (int i = 0; i < friendIds.size(); i++) {
+            args[i] = String.valueOf(friendIds.get(i));
+        }
+
+        Cursor cursor = db.rawQuery(queryStr, args);
+
+        if (cursor != null) {
+
+            int memoryIdIndex = cursor.getColumnIndexOrThrow(COL_MEMORY_ID);
+            int posterIdIndex = cursor.getColumnIndexOrThrow(COL_POSTER_ID);
+            int titleIndex = cursor.getColumnIndexOrThrow(COL_MEMORY_TITLE);
+            int bodyIndex = cursor.getColumnIndexOrThrow(COL_MEMORY_BODY);
+            int mediaTypeIndex = cursor.getColumnIndexOrThrow(COL_MEDIA_TYPE);
+            int mediaUrlIndex = cursor.getColumnIndexOrThrow(COL_MEDIA_URL);
+            int timeStampIndex = cursor.getColumnIndexOrThrow(COL_TIME_STAMP);
+            int likesIndex = cursor.getColumnIndexOrThrow(COL_LIKES);
+
+            while (cursor.moveToNext()) {
+
+                int memoryID = cursor.getInt(memoryIdIndex);
+                int posterID = cursor.getInt(posterIdIndex);
+                String memoryTitle = cursor.getString(titleIndex);
+                String memoryBody = cursor.getString(bodyIndex);
+                String mediaType = cursor.getString(mediaTypeIndex);
+                String mediaURL = cursor.getString(mediaUrlIndex);
+                String timeStamp = cursor.getString(timeStampIndex);
+                int likes = cursor.getInt(likesIndex);
+
+                MemoriesItem memory = new MemoriesItem(
+                        memoryID,
+                        posterID,
+                        memoryTitle,
+                        memoryBody,
+                        mediaURL,
+                        timeStamp,
+                        likes
+                );
+
+                memoryList.add(memory);
+            }
+
+            cursor.close();
+        }
+
+        return memoryList;
+    }
     public void updateMemoryLikes(int memoryID, int newLikes) {
         SQLiteDatabase db = this.getWritableDatabase();
         String searchQuery = "UPDATE " + TABLE_MEMORIES +
@@ -466,6 +699,54 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return db.rawQuery(searchQuery,
                 new String[]{String.valueOf(postID)});
+    }
+
+    public List<Comment> getCommentsList(Integer memoryId) {
+
+        List<Comment> commentList = new ArrayList<>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String queryStr = "SELECT * FROM " + TABLE_COMMENTS +
+                " WHERE " + COL_MEMORY_ID + " = ?" +
+                " ORDER BY " + COL_COMMENT_TIME_STAMP;
+
+        Cursor cursor = db.rawQuery(
+                queryStr,
+                new String[]{String.valueOf(memoryId)}
+        );
+
+        if (cursor != null) {
+
+            int commentIdIndex = cursor.getColumnIndexOrThrow(COL_COMMENT_ID);
+            int posterIdIndex = cursor.getColumnIndexOrThrow(COL_POSTER_ID);
+            int memoryIdIndex = cursor.getColumnIndexOrThrow(COL_MEMORY_ID);
+            int bodyIndex = cursor.getColumnIndexOrThrow(COL_COMMENT_BODY);
+            int timeIndex = cursor.getColumnIndexOrThrow(COL_COMMENT_TIME_STAMP);
+
+            while (cursor.moveToNext()) {
+
+                int commentId = cursor.getInt(commentIdIndex);
+                int posterId = cursor.getInt(posterIdIndex);
+                int memId = cursor.getInt(memoryIdIndex);
+                String body = cursor.getString(bodyIndex);
+                String timestamp = cursor.getString(timeIndex);
+
+                Comment comment = new Comment(
+                        commentId,
+                        posterId,
+                        memId,
+                        body,
+                        timestamp
+                );
+
+                commentList.add(comment);
+            }
+
+            cursor.close();
+        }
+
+        return commentList;
     }
 
     public long postComment(int memoryID, int commentorID, String commentBody) {
@@ -769,7 +1050,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int categoryIndex = cursor.getColumnIndexOrThrow(COL_RECORD_CATEGORY);
             int valueIndex = cursor.getColumnIndexOrThrow(COL_RECORD_VALUE);
             int timeIndex = cursor.getColumnIndexOrThrow(COL_TIME_RECORDED);
-
             while (cursor.moveToNext()) {
 
                 int recordID = cursor.getInt(recordIdIndex);
@@ -794,6 +1074,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return list;
     }
+
+
+
 // UPDATE USER STATUS
 //    public void updateUserStatus(int userId, String status) {
 //

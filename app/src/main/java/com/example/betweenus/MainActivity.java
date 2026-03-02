@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
         myDBHelper.markTaskComplete(taskID);
     }
 
-    public Cursor getUserSchedule(int userID) {
+    public String getUserSchedule(int userID) {
         return myDBHelper.getUserSchedule(userID);
     }
 
