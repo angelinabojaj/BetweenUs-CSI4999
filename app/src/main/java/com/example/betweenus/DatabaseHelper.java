@@ -828,6 +828,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         long currentTime = System.currentTimeMillis();
         long expirationMillis = expirationHours * 60 * 60 * 1000;
+
         String queryStr = "SELECT * FROM " + TABLE_DASHBOARD +
                 " ORDER BY " + COL_POST_TIME + " DESC";
         System.out.println(queryStr);

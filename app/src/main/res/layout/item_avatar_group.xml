@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- LEFT AVATAR CONTAINER -->
+    <LinearLayout
+        android:id="@+id/containerLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:translationY="-20dp"
+        android:gravity="center"
+        app:layout_constraintEnd_toStartOf="@id/containerCenter"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+        <TextView
+            android:id="@+id/txt_status1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="status"
+            android:translationX="-4dp"
+            android:translationY="10dp"
+            android:textSize="20sp" />
+
+        <ImageView
+            android:id="@+id/avatarLeft"
+            android:layout_width="100dp"
+            android:layout_height="180dp"
+            android:src="@drawable/giraffe_happy"
+            android:translationY="20dp"
+            android:scaleX="0.95"
+            android:scaleY="0.95"
+            android:elevation="2dp" />
+
+        <View
+            android:layout_width="100dp"
+            android:layout_height="20dp"
+
+            android:background="@drawable/avatar_shadow"
+            android:layout_marginTop="6dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/containerRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:translationY="-20dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        app:layout_constraintStart_toEndOf="@id/containerCenter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/txt_status3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="status"
+            android:translationX="-4dp"
+            android:translationY="10dp"
+            android:textSize="20sp"/>
+
+        <ImageView
+            android:id="@+id/avatarRight"
+            android:layout_width="100dp"
+            android:layout_height="180dp"
+            android:src="@drawable/puppy_happy"
+            android:translationY="20dp"
+            android:scaleX="0.95"
+            android:scaleY="0.95"
+            android:elevation="2dp" />
+
+        <View
+            android:layout_width="100dp"
+            android:layout_height="20dp"
+
+            android:background="@drawable/avatar_shadow"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
+
+    <!-- CENTER AVATAR CONTAINER -->
+    <LinearLayout
+        android:id="@+id/containerCenter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        app:layout_constraintStart_toEndOf="@id/containerLeft"
+        app:layout_constraintEnd_toStartOf="@id/containerRight"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/txt_status2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="status"
+            android:translationY="10dp"
+            android:translationX="-4dp"
+            android:textSize="20sp"/>
+
+        <ImageView
+            android:id="@+id/avatarCenter"
+            android:layout_width="100dp"
+            android:layout_height="180dp"
+            android:src="@drawable/bunny_happy"
+            android:translationY="20dp"
+            android:scaleX="0.95"
+            android:scaleY="0.95"
+            android:elevation="2dp" />
+
+        <View
+
+            android:layout_width="100dp"
+            android:layout_height="20dp"
+            android:background="@drawable/avatar_shadow"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
+
+    <!-- RIGHT AVATAR CONTAINER -->
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

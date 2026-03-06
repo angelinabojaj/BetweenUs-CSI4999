@@ -17,13 +17,16 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.betweenus.DatabaseHelper;
 import com.example.betweenus.R;
 import com.example.betweenus.adapter.AvatarAdapter;
+import com.example.betweenus.adapter.AvatarPagerAdapter;
 import com.example.betweenus.adapter.DashboardAdapter;
 import com.example.betweenus.adapter.TodoPreviewAdapter;
 import com.example.betweenus.databinding.FragmentHomeBinding;
+import com.example.betweenus.model.AvatarGroup;
 import com.example.betweenus.model.DashboardMessage;
 import com.example.betweenus.model.User;
 import com.example.betweenus.ui.home.HomeViewModel;
@@ -36,6 +39,7 @@ public class HomeFragment extends Fragment {
     private Spinner spinnerStatus;
     private RecyclerView recyclerDashboard, recyclerAvatars, recyclerTodoPreview;
     private ImageButton moodHappy, moodNeutral, moodSad, moodAngry, moodExcited;
+    private ViewPager2 avatarPager;
 
     private DashboardAdapter dashboardAdapter;
     private AvatarAdapter avatarAdapter;
@@ -48,7 +52,8 @@ public class HomeFragment extends Fragment {
 
     private final long EXPIRATION_HOURS = 4; // dashboard expiration
 
-    public HomeFragment() {}
+    public HomeFragment() {
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -77,7 +82,8 @@ public class HomeFragment extends Fragment {
     private void initializeViews(View view) {
         spinnerStatus = view.findViewById(R.id.spinnerStatus);
         recyclerDashboard = view.findViewById(R.id.recyclerDashboard);
-        recyclerAvatars = view.findViewById(R.id.recyclerAvatars);
+        avatarPager = view.findViewById(R.id.avatarPager);
+//        recyclerAvatars = view.findViewById(R.id.recyclerAvatars);
         recyclerTodoPreview = view.findViewById(R.id.recyclerTodoPreview);
 
         moodHappy = view.findViewById(R.id.moodHappy);
@@ -114,7 +120,8 @@ public class HomeFragment extends Fragment {
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
     }
 
@@ -188,15 +195,40 @@ public class HomeFragment extends Fragment {
     // -----------------------------
     private void setupAvatars() {
 
-        recyclerAvatars.setLayoutManager(
-                new LinearLayoutManager(getContext(),
-                        LinearLayoutManager.HORIZONTAL, false)
-        );
+//        recyclerAvatars.setLayoutManager(
+//                new LinearLayoutManager(getContext(),
+//                        LinearLayoutManager.HORIZONTAL, false)
+//        );
 
-        List<User> users = dbHelper.getUserAndFriends(currentUserId);
+//        List<User> users = dbHelper.getUserAndFriends(currentUserId);
+        List<AvatarGroup> avatarGroups = new ArrayList<>();
 
-        avatarAdapter = new AvatarAdapter(users, currentUserId);
-        recyclerAvatars.setAdapter(avatarAdapter);
+        avatarGroups.add(new AvatarGroup(
+                R.drawable.puppy_happy,
+                R.drawable.giraffe_happy,
+                R.drawable.bunny_happy
+        ));
+
+        avatarGroups.add(new AvatarGroup(
+                R.drawable.giraffe_happy,
+                R.drawable.bunny_happy,
+                R.drawable.puppy_happy
+        ));
+
+        avatarGroups.add(new AvatarGroup(
+                R.drawable.bunny_happy,
+                R.drawable.puppy_happy,
+                R.drawable.giraffe_happy
+        ));
+
+//        avatarAdapter = new AvatarAdapter(users, currentUserId);
+//        recyclerAvatars.setAdapter(avatarAdapter);
+
+        AvatarPagerAdapter adapter = new AvatarPagerAdapter(avatarGroups);
+
+        avatarPager.setAdapter(adapter);
+
+
     }
 
     // -----------------------------

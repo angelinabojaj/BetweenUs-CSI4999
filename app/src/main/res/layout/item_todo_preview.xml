@@ -1,7 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/txtTaskGoal"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="12dp"
-    android:textSize="14sp"/>
+    android:orientation="horizontal"
+    android:padding="6dp"
+    android:layout_marginBottom="6dp"
+    android:background="@drawable/todo_item_bg">
+
+    <CheckBox
+        android:id="@+id/checkTodo"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:buttonTint="#2196F3"/>
+
+    <TextView
+        android:id="@+id/txtTaskGoal"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:text="Finish homework"
+        android:textSize="12sp"
+        android:paddingStart="6dp"/>
+</LinearLayout>
