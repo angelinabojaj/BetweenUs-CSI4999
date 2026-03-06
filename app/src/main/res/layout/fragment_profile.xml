@@ -79,6 +79,31 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- Add Friend button -->
+    <EditText
+        android:id="@+id/addFriendInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter friend's name or ID"
+        android:padding="12dp"
+        android:background="@android:drawable/edit_text"
+        app:layout_constraintTop_toBottomOf="@id/viewFriendsButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/addFriendButton"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="12dp"/>
+
+    <Button
+        android:id="@+id/addFriendButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Friend"
+        app:layout_constraintTop_toTopOf="@id/addFriendInput"
+        app:layout_constraintBottom_toBottomOf="@id/addFriendInput"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="16dp"/>
+
     <!-- Friends RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_friends"
@@ -86,7 +111,7 @@
         android:layout_height="0dp"
         android:layout_margin="16dp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/viewFriendsButton"
+        app:layout_constraintTop_toBottomOf="@id/addFriendInput"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>

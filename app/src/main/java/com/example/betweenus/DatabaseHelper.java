@@ -32,7 +32,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private Context myContext;
     //Users Table
     private static final String TABLE_USERS = "users";
-    private static final String COL_USER_ID = "UserID";
+    public static final String COL_USER_ID = "UserID";
     public static final String COL_NAME = "UserName";
     public static final String COL_EMAIL = "UserEmail";
     private static final String COL_PHONE = "UserPhone";
@@ -326,8 +326,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COL_FIRST_FRIEND_ID, firstFriendID);
         values.put(COL_SECOND_FRIEND_ID, secondFriendID);
-        updateFriendCount(firstFriendID, 1);
-        updateFriendCount(secondFriendID, 1);
+        //updateFriendCount(firstFriendID, 1);
+        //updateFriendCount(secondFriendID, 1);
         return db.insert(TABLE_FRIENDS, null, values);
     }
 
