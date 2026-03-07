@@ -1,6 +1,7 @@
 package com.example.betweenus.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.betweenus.DatabaseHelper;
+import com.example.betweenus.MemoriesDetailActivity;
 import com.example.betweenus.R;
 import com.example.betweenus.model.MemoriesItem;
 
@@ -46,6 +48,14 @@ public class MemoriesAdapter extends RecyclerView.Adapter<MemoriesAdapter.ViewHo
         holder.tvBody.setText(memoriesItem.getMemoryBody());
         holder.tvLikes.setText(String.valueOf(memoriesItem.getLikes()) + "❤");
         holder.tvDate.setText(memoriesItem.getTimeStamp());
+
+        holder.itemView.setOnClickListener(v -> {
+
+            Intent intent = new Intent(context, MemoriesDetailActivity.class);
+            intent.putExtra("MEMORY_ID", memoriesItem.getMemoryID());
+            context.startActivity(intent);
+
+        });
 
         String imagePath = memoriesItem.getMediaURL();
 
