@@ -158,7 +158,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-
     private boolean checkDataBase() {
         SQLiteDatabase checkDB = null;
 
@@ -182,7 +181,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public void openDataBase() throws SQLException{
+    public void openDataBase() throws SQLException {
         //Open the database
         String myPath = myContext.getDatabasePath(DATABASE_NAME).getPath();
         db = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READWRITE);
@@ -412,6 +411,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return friendsList;
     }
+
     public List<Integer> getFriendUserIds(Integer userId) {
 
         List<Integer> friendIds = new ArrayList<>();
@@ -542,7 +542,73 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    //memories database functions
+    //****MEMORIES DATABASE FUNCTIONS****///
+
+    public long createMemory(int posterID,
+                             String title,
+                             String body,
+                             String mediaType,
+                             String mediaURL,
+                             String timestamp) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COL_POSTER_ID, posterID);
+        values.put(COL_MEMORY_TITLE, title);
+        values.put(COL_MEMORY_BODY, body);
+        values.put(COL_MEDIA_TYPE, mediaType);
+        values.put(COL_MEDIA_URL, mediaURL);
+        values.put(COL_TIME_STAMP, timestamp);
+        values.put(COL_LIKES, 0);
+
+        return db.insert(TABLE_MEMORIES, null, values);
+    }
+
+    public Cursor getMemoryByID(int memoryID) {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query =
+                "SELECT * FROM " + TABLE_MEMORIES +
+                        " WHERE " + COL_MEMORY_ID + " = ?";
+
+        return db.rawQuery(query,
+                new String[]{String.valueOf(memoryID)});
+    }
+
+    public void updateMemory(int memoryID,
+                             String newTitle,
+                             String newBody) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String query =
+                "UPDATE " + TABLE_MEMORIES +
+                        " SET " + COL_MEMORY_TITLE + " = ?, " +
+                        COL_MEMORY_BODY + " = ? " +
+                        " WHERE " + COL_MEMORY_ID + " = ?";
+
+        db.execSQL(query,
+                new Object[]{newTitle, newBody, memoryID});
+    }
+
+    public void deleteMemory(int memoryID) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.execSQL(
+                "DELETE FROM " + TABLE_MEMORIES +
+                        " WHERE " + COL_MEMORY_ID + " = ?",
+                new Object[]{memoryID}
+        );
+
+        db.execSQL(
+                "DELETE FROM " + TABLE_COMMENTS +
+                        " WHERE " + COL_COMMENT_MEMORY_ID + " = ?",
+                new Object[]{memoryID}
+        );
+    }
 
     public Cursor getMemories() {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -556,6 +622,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return db.rawQuery(searchQuery, null);
     }
+
+
     //returns list of All memories
     public List<MemoriesItem> getMemorieList() {
 
@@ -681,13 +749,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return memoryList;
     }
+
     public void updateMemoryLikes(int memoryID, int newLikes) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String searchQuery = "UPDATE " + TABLE_MEMORIES +
-                " SET " + COL_LIKES + " = ?" +
-                " WHERE " + COL_MEMORY_ID + " = ?";
-        db.execSQL(searchQuery, new Object[]{memoryID, newLikes});
+        String query =
+                "UPDATE " + TABLE_MEMORIES +
+                        " SET " + COL_LIKES + " = ?" +
+                        " WHERE " + COL_MEMORY_ID + " = ?";
 
+        db.execSQL(query, new Object[]{newLikes, memoryID});
     }
 
     public Cursor getPostComments(Integer postID) {
@@ -695,7 +765,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         String searchQuery = "SELECT " + "*" +
                 " FROM " + TABLE_COMMENTS +
-                " WHERE " + COL_COMMENT_MEMORY_ID+ " = ?";
+                " WHERE " + COL_COMMENT_MEMORY_ID + " = ?";
 
         return db.rawQuery(searchQuery,
                 new String[]{String.valueOf(postID)});
@@ -707,9 +777,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String queryStr = "SELECT * FROM " + TABLE_COMMENTS +
-                " WHERE " + COL_MEMORY_ID + " = ?" +
-                " ORDER BY " + COL_COMMENT_TIME_STAMP;
+        String queryStr =
+                "SELECT * FROM " + TABLE_COMMENTS +
+                        " WHERE " + COL_COMMENT_MEMORY_ID + " = ?" +
+                        " ORDER BY " + COL_COMMENT_TIME_STAMP;
 
         Cursor cursor = db.rawQuery(
                 queryStr,
@@ -750,20 +821,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public long postComment(int memoryID, int commentorID, String commentBody) {
+
         SQLiteDatabase db = this.getWritableDatabase();
+
         ContentValues values = new ContentValues();
         values.put(COL_COMMENT_MEMORY_ID, memoryID);
         values.put(COL_COMMENTOR_ID, commentorID);
         values.put(COL_COMMENT_BODY, commentBody);
+        values.put(COL_COMMENT_TIME_STAMP, System.currentTimeMillis());
+
         return db.insert(TABLE_COMMENTS, null, values);
     }
 
     public boolean login(int userID, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String[] columns = { COL_PASSWORD };
+        String[] columns = {COL_PASSWORD};
         String selection = COL_USER_ID + " = ?";
-        String[] selectionArgs = { String.valueOf(userID) };
+        String[] selectionArgs = {String.valueOf(userID)};
 
         Cursor cursor = db.query(
                 TABLE_USERS,
@@ -791,7 +866,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //*** homepage methods ****
 
-// UPDATE USER MOOD
+    // UPDATE USER MOOD
     public void updateUserMood(int userId, String mood) {
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -819,7 +894,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.insert(TABLE_DASHBOARD, null, values);
     }
 
-// GET DASHBOARD MESSAGES
+    // GET DASHBOARD MESSAGES
     public List<DashboardMessage> getValidDashboardMessages(long expirationHours) {
 
         List<DashboardMessage> list = new ArrayList<>();
@@ -845,11 +920,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 //            if (currentTime - postTime <= expirationMillis) {
 
-                String text = cursor.getString(
-                        cursor.getColumnIndexOrThrow(COL_POST_TEXT)
-                );
+            String text = cursor.getString(
+                    cursor.getColumnIndexOrThrow(COL_POST_TEXT)
+            );
 
-                list.add(new DashboardMessage(text));
+            list.add(new DashboardMessage(text));
 //            }
         }
 
@@ -893,7 +968,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return tasks;
     }
 
-// GET USER + FRIENDS
+    // GET USER + FRIENDS
     public List<User> getUserAndFriends(int userId) {
 
         List<User> users = new ArrayList<>();
@@ -1075,7 +1150,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return list;
     }
-
 
 
 // UPDATE USER STATUS

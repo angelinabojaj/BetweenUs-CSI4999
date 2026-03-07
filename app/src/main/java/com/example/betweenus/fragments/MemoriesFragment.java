@@ -1,16 +1,19 @@
 package com.example.betweenus.fragments;
 
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.betweenus.CreateMemoryActivity;
 import com.example.betweenus.DatabaseHelper;
 import com.example.betweenus.R;
 import com.example.betweenus.adapter.MemoriesAdapter;
@@ -25,11 +28,20 @@ public class MemoriesFragment extends Fragment {
     private List<MemoriesItem> memoriesItems;
     private DatabaseHelper dbHelper;
 
+    private ImageButton btnAddMemory;
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_memories, container, false);
         recyclerView = view.findViewById(R.id.recycler_view_posts);
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
         recyclerView.setLayoutManager(layoutManager);
+
+        btnAddMemory = view.findViewById(R.id.btn_add_memory);
+
+        btnAddMemory.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), CreateMemoryActivity.class);
+            startActivity(intent);
+        });
 
         dbHelper = new DatabaseHelper(requireContext());
         memoriesItems = new ArrayList<>();
@@ -38,6 +50,14 @@ public class MemoriesFragment extends Fragment {
         recyclerView.setAdapter(memoriesAdapter);
         return view;
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        memoriesItems.clear();
+        loadMemories();
+        memoriesAdapter.notifyDataSetChanged();
     }
 
     private void loadMemories() {
