@@ -21,8 +21,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "BetweenUs.db";
@@ -243,6 +245,40 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_DUE_DATE, dueDate);
         return db.insert(TABLE_TASKS, null, values);
     }
+    public Task createTask2(Integer taskCreator, String goal, Integer isPrivate, String dueDate) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COL_TASK_CREATOR, taskCreator);
+        values.put(COL_TASK_GOAL, goal);
+        values.put(COL_IS_PRIVATE, isPrivate);
+        values.put(COL_DUE_DATE, dueDate);
+
+        long result = db.insert(TABLE_TASKS, null, values);
+
+        if(result == -1){
+            System.out.println("Insertion Failed");
+        }
+        else{
+            System.out.println("Insertion successful");
+        }
+
+        String query = "SELECT MAX(" + COL_TASK_ID + ") as max_id FROM " + TABLE_TASKS;
+
+        Cursor c = db.rawQuery(query, null);
+
+        int taskID = -1;
+
+        if (c.moveToFirst()) {   // move cursor to first row
+            int idIndex = c.getColumnIndexOrThrow("max_id");
+            taskID = c.getInt(idIndex);
+        }
+
+        c.close();
+
+        return new Task(taskID, taskCreator, goal, dueDate, false);
+    }
+
 
     //Get Tasks For User
     public Cursor getUserTasks(String query) {
@@ -952,6 +988,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int taskId = cursor.getInt(
                     cursor.getColumnIndexOrThrow(COL_TASK_ID));
 
+            int taskCreator = cursor.getInt(cursor.getColumnIndexOrThrow(COL_TASK_CREATOR));
+
             String goal = cursor.getString(
                     cursor.getColumnIndexOrThrow(COL_TASK_GOAL));
 
@@ -961,7 +999,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int isComplete = cursor.getInt(
                     cursor.getColumnIndexOrThrow(COL_IS_COMPLETE));
 
-            tasks.add(new Task(taskId, goal, dueDate, isComplete == 1));
+            tasks.add(new Task(taskId, taskCreator, goal, dueDate, isComplete == 1));
         }
 
         cursor.close();
@@ -1150,6 +1188,48 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return list;
     }
+    public List<String> getDueTasks(SQLiteDatabase db) {
+        List<String> dueTasks = new ArrayList<>();
+
+        String query = "SELECT TaskGoal FROM tasks " +
+                "WHERE datetime(DueDate) BETWEEN datetime('now') AND datetime('now', '+1 day')";
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                dueTasks.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+
+        return dueTasks;
+    }
+
+    public String getRandomSuggestion() {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Random random = new Random();
+        int randomNumber = random.nextInt(10) + 1; // 1–10 instead of 0–9
+
+        String query = "SELECT " + COL_SUGGESTION +
+                " FROM " + TABLE_SUGGESTIONS +
+                " WHERE " + COL_SUGGESTION_ID + " = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(randomNumber)});
+
+        String randomTask = null;
+
+        if (cursor.moveToFirst()) {
+            randomTask = cursor.getString(0);
+        }
+
+        cursor.close();
+
+        return randomTask;
+    }
+
 
 
 // UPDATE USER STATUS

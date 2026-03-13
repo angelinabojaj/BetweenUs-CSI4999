@@ -85,11 +85,12 @@ public class ProductivityFragment extends Fragment {
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 int id = cursor.getInt(cursor.getColumnIndexOrThrow("TaskID"));
+                int makerId = cursor.getInt(cursor.getColumnIndexOrThrow("TaskCreator"));
                 String goal = cursor.getString(cursor.getColumnIndexOrThrow("TaskGoal"));
                 String date = cursor.getString(cursor.getColumnIndexOrThrow("DueDate"));
                 int complete = cursor.getInt(cursor.getColumnIndexOrThrow("IsComplete"));
 
-                taskList.add(new Task(id, goal, date, complete == 1));
+                taskList.add(new Task(id, makerId, goal, date, complete == 1));
             } while (cursor.moveToNext());
             cursor.close();
         }

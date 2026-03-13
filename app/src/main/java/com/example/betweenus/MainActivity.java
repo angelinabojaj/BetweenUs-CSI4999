@@ -13,6 +13,7 @@ import com.example.betweenus.fragments.MemoriesFragment;
 import com.example.betweenus.fragments.ProductivityFragment;
 import com.example.betweenus.fragments.ProfileFragment;
 import com.example.betweenus.fragments.HomeFragment;
+import com.example.betweenus.model.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.NonNull;
@@ -42,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
         createDB();
         testDatabaseQuery();
         testLogin();
+        //testCreateTask();
+        testGetRandomSuggestion();
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -176,12 +179,12 @@ public class MainActivity extends AppCompatActivity {
         return myDBHelper.getUserFriends(userID);
     }
 
-    public long createTask(int creatorID,
+    public Task createTask(int creatorID,
                            String goal,
                            int isPrivate,
                            String dueDate) {
 
-        return myDBHelper.createTask(creatorID, goal, isPrivate, dueDate);
+        return myDBHelper.createTask2(creatorID, goal, isPrivate, dueDate);
     }
 
     public Cursor getUserTasks(int userID) {
@@ -207,6 +210,24 @@ public class MainActivity extends AppCompatActivity {
     public boolean login(int userID, String password){
         return myDBHelper.login(userID, password);
     }
+
+    //public Task createTask(Integer taskCreator, String goal, Integer isPrivate, String dueDate){
+      //  return myDBHelper.createTask(taskCreator, goal, isPrivate, dueDate);
+    //}
+
+    public String getRandomSuggestion(){
+        return myDBHelper.getRandomSuggestion();
+    }
+
+    public void testGetRandomSuggestion(){
+        System.out.println(getRandomSuggestion());
+    }
+
+    public void testCreateTask(){
+        Task testTask = createTask(1, "Test task creation", 0, "2026-033-24 12:00:00");
+        System.out.println(testTask.getTaskGoal());
+    }
+
     private void testDatabaseQuery() {
 
         try {
