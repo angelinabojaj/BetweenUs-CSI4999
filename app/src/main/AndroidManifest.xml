@@ -15,6 +15,9 @@
         android:theme="@style/Theme.BetweenUs"
         tools:targetApi="31">
         <activity
+            android:name=".DrawingActivity"
+            android:exported="false" />
+        <activity
             android:name=".MemoriesDetailActivity"
             android:exported="false" />
         <activity

@@ -22,7 +22,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.betweenus.databinding.ActivityMainBinding;
@@ -49,10 +49,13 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        NavigationUI.setupWithNavController(binding.navView, navController);
-        binding.navView.setOnNavigationItemSelectedListener(navListener);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment_activity_main);
+        
+        if (navHostFragment != null) {
+            NavController navController = navHostFragment.getNavController();
+            NavigationUI.setupWithNavController(binding.navView, navController);
+        }
 
         requestNotificationPermission();
     }
@@ -96,36 +99,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-    private BottomNavigationView.OnNavigationItemSelectedListener navListener =
-            item -> {
-
-                Fragment selectedFragment = null;
-                int id = item.getItemId();
-
-                if (id == R.id.navigation_home) {
-                    selectedFragment = new HomeFragment();
-
-                } else if (id == R.id.navigation_memories) {
-                    selectedFragment = new MemoriesFragment();
-
-                } else if (id == R.id.navigation_profile) {
-                    selectedFragment = new ProfileFragment();
-                } else if (id == R.id.navigation_productivity) {
-                    selectedFragment = new ProductivityFragment();
-                }
-
-
-                if (selectedFragment != null) {
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.nav_host_fragment_activity_main, selectedFragment)
-                            .commit();
-                    return true;
-                }
-
-                return false;
-            };
 
     public void createDB() {
         myDBHelper = new DatabaseHelper(this);
