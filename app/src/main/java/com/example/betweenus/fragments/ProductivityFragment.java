@@ -1,5 +1,6 @@
 package com.example.betweenus.fragments;
 
+import android.app.AlertDialog;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -7,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,6 +35,8 @@ public class ProductivityFragment extends Fragment {
     private EditText etTaskInput;
     private Button btnAddTask;
 
+    private ImageButton btnSuggestion;
+
     // Hardcoded for now, should ideally come from user session
     private int currentUserId = 1;
 
@@ -50,6 +55,19 @@ public class ProductivityFragment extends Fragment {
         recyclerView = view.findViewById(R.id.taskRecyclerView);
         etTaskInput = view.findViewById(R.id.et_task_input);
         btnAddTask = view.findViewById(R.id.btn_add_task);
+
+        btnSuggestion = view.findViewById(R.id.btn_suggestion);
+
+        btnSuggestion.setOnClickListener(v -> {
+
+            String suggestion = dbHelper.getRandomSuggestion();
+
+            if (suggestion != null) {
+                showSuggestionDialog(suggestion);
+            } else {
+                Toast.makeText(getContext(), "No suggestions found", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         taskAdapter = new TaskAdapter(taskList, task -> {
@@ -85,14 +103,39 @@ public class ProductivityFragment extends Fragment {
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 int id = cursor.getInt(cursor.getColumnIndexOrThrow("TaskID"));
+                int makerId = cursor.getInt(cursor.getColumnIndexOrThrow("TaskCreator"));
                 String goal = cursor.getString(cursor.getColumnIndexOrThrow("TaskGoal"));
                 String date = cursor.getString(cursor.getColumnIndexOrThrow("DueDate"));
                 int complete = cursor.getInt(cursor.getColumnIndexOrThrow("IsComplete"));
 
-                taskList.add(new Task(id, goal, date, complete == 1));
+                taskList.add(new Task(id, makerId, goal, date, complete == 1));
             } while (cursor.moveToNext());
             cursor.close();
         }
         taskAdapter.updateTasks(taskList);
+    }
+
+    private void showSuggestionDialog(String suggestion) {
+
+        View view = LayoutInflater.from(getContext())
+                .inflate(R.layout.dialog_ui, null);
+
+        TextView tvSuggestion = view.findViewById(R.id.tv_suggestion_text);
+        Button btnClose = view.findViewById(R.id.btn_close_dialog);
+
+        tvSuggestion.setText(suggestion);
+
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
+                .setView(view)
+                .create();
+
+        dialog.show();
+
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.getWindow().setLayout(800,ViewGroup.LayoutParams.WRAP_CONTENT);
+
+
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+
     }
 }

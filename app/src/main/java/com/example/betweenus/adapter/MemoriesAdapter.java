@@ -85,6 +85,14 @@ public class MemoriesAdapter extends RecyclerView.Adapter<MemoriesAdapter.ViewHo
 
             }
         });
+
+        holder.btnComment.setOnClickListener(v -> {
+
+            Intent intent = new Intent(context, MemoriesDetailActivity.class);
+            intent.putExtra("MEMORY_ID", memoriesItem.getMemoryID());
+            context.startActivity(intent);
+
+        });;
     }
 
     public int getItemCount() {

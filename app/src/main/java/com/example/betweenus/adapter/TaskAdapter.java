@@ -1,5 +1,6 @@
 package com.example.betweenus.adapter;
 
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.betweenus.R;
@@ -44,6 +46,15 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         String displayedTitle = "Task #" + task.getTaskId() + ": " + task.getTaskGoal();
         holder.tvTitle.setText(displayedTitle);
         holder.tvTime.setText("Due: " + task.getDueDate());
+
+        int[] colors = {
+                Color.parseColor("#F6A6A6"), // pink
+                Color.parseColor("#FFD166"), // yellow
+                Color.parseColor("#A8E6CF"), // green
+                Color.parseColor("#F4A261")  // orange
+        };
+
+        holder.taskCard.setCardBackgroundColor(colors[position % colors.length]);
 
         // Handle initial state and strikethrough
         holder.cbComplete.setOnCheckedChangeListener(null); // Clear listener before setting checked state
@@ -85,12 +96,15 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         TextView tvTitle, tvTime;
         ImageButton btnDelete;
         CheckBox cbComplete;
+        CardView taskCard;
+
 
         public TaskViewHolder(@NonNull View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.taskTitle);
             tvTime = itemView.findViewById(R.id.taskTime);
             btnDelete = itemView.findViewById(R.id.deleteTaskButton);
+            taskCard = itemView.findViewById(R.id.taskCard);
             cbComplete = itemView.findViewById(R.id.task_complete_checkbox);
         }
     }
