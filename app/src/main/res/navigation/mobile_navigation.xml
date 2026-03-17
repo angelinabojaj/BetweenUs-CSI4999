@@ -19,9 +19,9 @@
 
     <fragment
         android:id="@+id/navigation_chat"
-        android:name="com.example.betweenus.ui.dashboard.DashboardFragment"
+        android:name="com.example.betweenus.fragments.MessagingFragment"
         android:label="Chat"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_messaging" />
 
     <fragment
         android:id="@+id/navigation_memories"
