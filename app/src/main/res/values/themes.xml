@@ -26,4 +26,8 @@
         <!-- Change this to your desired color -->
         <item name="android:color">#b7e0ff</item>
     </style>
+
+    <style name="CircleImageView" parent="">
+        <item name="cornerSize">50%</item>
+    </style>
 </resources>
