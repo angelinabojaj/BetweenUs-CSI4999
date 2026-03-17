@@ -118,12 +118,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL_TIME_RECORDED = "TimeRecorded";
 
     // Dashboard Table
-    private static final String TABLE_COMMENTS = "comments";
-    private static final String COL_COMMENT_ID = "CommentID";
-    private static final String COL_COMMENTOR_ID = "CommentorID";
-    private static final String COL_COMMENT_MEMORY_ID = "MemoryID";
-    private static final String COL_COMMENT_BODY = "CommentBody";
-    private static final String COL_COMMENT_TIME_STAMP = "CommentTimeStamp";
+    public static final String TABLE_COMMENTS = "comments";
+    public static final String COL_COMMENT_ID = "CommentID";
+    public static final String COL_COMMENTOR_ID = "CommentorID";
+    public static final String COL_COMMENT_MEMORY_ID = "MemoryID";
+    public static final String COL_COMMENT_BODY = "CommentBody";
+    public static final String COL_COMMENT_TIME_STAMP = "CommentTimeStamp";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
