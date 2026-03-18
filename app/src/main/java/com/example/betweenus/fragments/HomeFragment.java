@@ -1,6 +1,9 @@
 package com.example.betweenus.fragments;
 
 import android.app.AlertDialog;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,10 +12,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.betweenus.DatabaseHelper;
+import com.example.betweenus.DrawingActivity;
 import com.example.betweenus.R;
 import com.example.betweenus.adapter.AvatarAdapter;
 import com.example.betweenus.adapter.AvatarPagerAdapter;
@@ -31,6 +38,7 @@ import com.example.betweenus.model.DashboardMessage;
 import com.example.betweenus.model.User;
 import com.example.betweenus.ui.home.HomeViewModel;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +62,7 @@ public class HomeFragment extends Fragment {
 
     public HomeFragment() {
     }
-
+//
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -70,18 +78,27 @@ public class HomeFragment extends Fragment {
 
         initializeViews(view);
         setupSpinner();
-        setupDashboard();
+        setupDashboard(view);
         setupAvatars();
         setupTodoPreview();
         setupMoodButtons();
         setupNavigation(view);
 
+        CardView dashboardCard = view.findViewById(R.id.cardDashboard);
+
+        dashboardCard.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), DrawingActivity.class);
+            startActivity(intent);
+        });
+
         return view;
+
+
     }
 
     private void initializeViews(View view) {
         spinnerStatus = view.findViewById(R.id.spinnerStatus);
-        recyclerDashboard = view.findViewById(R.id.recyclerDashboard);
+//        recyclerDashboard = view.findViewById(R.id.recyclerDashboard);
         avatarPager = view.findViewById(R.id.avatarPager);
 //        recyclerAvatars = view.findViewById(R.id.recyclerAvatars);
         recyclerTodoPreview = view.findViewById(R.id.recyclerTodoPreview);
@@ -91,6 +108,7 @@ public class HomeFragment extends Fragment {
         moodSad = view.findViewById(R.id.moodSad);
         moodAngry = view.findViewById(R.id.moodAngry);
         moodExcited = view.findViewById(R.id.moodExcited);
+
     }
 
     // -----------------------------
@@ -128,45 +146,53 @@ public class HomeFragment extends Fragment {
     // -----------------------------
     // DASHBOARD
     // -----------------------------
-    private void setupDashboard() {
+    private void setupDashboard(View view) {
+        ImageView dashboardImage = view.findViewById(R.id.dashboardImage);
 
-        recyclerDashboard.setLayoutManager(
-                new LinearLayoutManager(getContext())
-        );
+        File file = new File(requireContext().getFilesDir(), "dashboard_drawing.png");
 
-        List<DashboardMessage> messages =
-                dbHelper.getValidDashboardMessages(EXPIRATION_HOURS);
+        if (file.exists()) {
+            Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+            dashboardImage.setImageBitmap(bitmap);
+        }
 
-        dashboardAdapter = new DashboardAdapter(messages);
-        recyclerDashboard.setAdapter(dashboardAdapter);
-
-        recyclerDashboard.setOnClickListener(v -> {
-            showDashboardDialog();
-        });
+//        recyclerDashboard.setLayoutManager(
+//                new LinearLayoutManager(getContext())
+//        );
+//
+//        List<DashboardMessage> messages =
+//                dbHelper.getValidDashboardMessages(EXPIRATION_HOURS);
+//
+//        dashboardAdapter = new DashboardAdapter(messages);
+//        recyclerDashboard.setAdapter(dashboardAdapter);
+//
+//        recyclerDashboard.setOnClickListener(v -> {
+//            showDashboardDialog();
+//        });
     }
 
-    private void showDashboardDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        final EditText input = new EditText(getContext());
+//    private void showDashboardDialog() {
+//        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+//        final EditText input = new EditText(getContext());
+//
+//        builder.setTitle("Post to Dashboard");
+//        builder.setView(input);
+//
+//        builder.setPositiveButton("Post", (dialog, which) -> {
+//            String text = input.getText().toString();
+//            dbHelper.insertDashboardMessage(currentUserId, text);
+//            refreshDashboard();
+//        });
+//
+//        builder.setNegativeButton("Cancel", null);
+//        builder.show();
+//    }
 
-        builder.setTitle("Post to Dashboard");
-        builder.setView(input);
-
-        builder.setPositiveButton("Post", (dialog, which) -> {
-            String text = input.getText().toString();
-            dbHelper.insertDashboardMessage(currentUserId, text);
-            refreshDashboard();
-        });
-
-        builder.setNegativeButton("Cancel", null);
-        builder.show();
-    }
-
-    private void refreshDashboard() {
-        List<DashboardMessage> messages =
-                dbHelper.getValidDashboardMessages(EXPIRATION_HOURS);
-        dashboardAdapter.updateList(messages);
-    }
+//    private void refreshDashboard() {
+//        List<DashboardMessage> messages =
+//                dbHelper.getValidDashboardMessages(EXPIRATION_HOURS);
+//        dashboardAdapter.updateList(messages);
+//    }
 
     // -----------------------------
     // TODO PREVIEW
@@ -268,5 +294,11 @@ public class HomeFragment extends Fragment {
                     .addToBackStack(null)
                     .commit();
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setupDashboard(getView());
     }
 }

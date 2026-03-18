@@ -17,22 +17,21 @@
         android:label="Productivity"
         tools:layout="@layout/fragment_productivity" />
 
-    <!-- Placeholder fragments for other bottom nav items -->
     <fragment
         android:id="@+id/navigation_chat"
-        android:name="com.example.betweenus.ui.dashboard.DashboardFragment"
-        android:label="Chat" />
+        android:name="com.example.betweenus.fragments.MessagingFragment"
+        android:label="Chat"
+        tools:layout="@layout/fragment_messaging" />
 
     <fragment
         android:id="@+id/navigation_memories"
-        android:name="com.example.betweenus.ui.notifications.NotificationsFragment"
-        android:label="Memories" />
+        android:name="com.example.betweenus.fragments.MemoriesFragment"
+        android:label="Memories"
+        tools:layout="@layout/fragment_memories" />
 
     <fragment
         android:id="@+id/navigation_profile"
         android:name="com.example.betweenus.fragments.ProfileFragment"
         android:label="Profile" />
-
-
 
 </navigation>
