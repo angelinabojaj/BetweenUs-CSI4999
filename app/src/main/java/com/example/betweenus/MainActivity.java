@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.example.betweenus.fragments.MemoriesFragment;
+import com.example.betweenus.fragments.MessagingFragment;
 import com.example.betweenus.fragments.ProductivityFragment;
 import com.example.betweenus.fragments.ProfileFragment;
 import com.example.betweenus.fragments.HomeFragment;
@@ -113,6 +114,8 @@ public class MainActivity extends AppCompatActivity {
                     selectedFragment = new ProfileFragment();
                 } else if (id == R.id.navigation_productivity) {
                     selectedFragment = new ProductivityFragment();
+                } else if (id == R.id.navigation_chat) {
+                    selectedFragment = new MessagingFragment();
                 }
 
 

@@ -1,111 +1,76 @@
 package com.example.betweenus.fragments;
 
 import android.os.Bundle;
+
+import androidx.fragment.app.Fragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.betweenus.DatabaseHelper;
 import com.example.betweenus.R;
-import com.example.betweenus.adapter.MessageAdapter;
-import com.example.betweenus.model.Message;
-import com.example.betweenus.model.User;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+// PURPOSE:
+//  Displays group chat interface inside MainActivity.
+//
+//  WHAT THIS FILE SHOULD DO:
+// - Display group chat name and photo
+// - Show list of messages using RecyclerView
+// - Handle sending new messages
+// - Auto-scroll to newest message
+// - Handle chat settings button click
 
+/**
+ * A simple {@link Fragment} subclass.
+ * Use the {@link MessagingFragment#newInstance} factory method to
+ * create an instance of this fragment.
+ */
 public class MessagingFragment extends Fragment {
 
-    private RecyclerView messagesRecyclerView;
-    private MessageAdapter messageAdapter;
-    private EditText messageInput;
-    private ImageButton sendMessageButton;
-    private DatabaseHelper dbHelper;
-    
-    // For demo purposes, we'll use a fixed current user ID and receiver ID
-    // In a real app, these would be passed in or retrieved from a session
-    private int currentUserId = 1; 
-    private int receiverId = 2; 
+    // TODO: Rename parameter arguments, choose names that match
+    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private static final String ARG_PARAM1 = "param1";
+    private static final String ARG_PARAM2 = "param2";
+
+    // TODO: Rename and change types of parameters
+    private String mParam1;
+    private String mParam2;
 
     public MessagingFragment() {
         // Required empty public constructor
     }
 
-    public static MessagingFragment newInstance() {
-        return new MessagingFragment();
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param param1 Parameter 1.
+     * @param param2 Parameter 2.
+     * @return A new instance of fragment MessagingFragment.
+     */
+    // TODO: Rename and change types and number of parameters
+    public static MessagingFragment newInstance(String param1, String param2) {
+        MessagingFragment fragment = new MessagingFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_PARAM2, param2);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        dbHelper = new DatabaseHelper(getContext());
+        if (getArguments() != null) {
+            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam2 = getArguments().getString(ARG_PARAM2);
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_messaging, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        messagesRecyclerView = view.findViewById(R.id.messagesRecyclerView);
-        messageInput = view.findViewById(R.id.messageInput);
-        sendMessageButton = view.findViewById(R.id.sendMessageButton);
-
-        setupRecyclerView();
-        loadMessages();
-
-        sendMessageButton.setOnClickListener(v -> {
-            String text = messageInput.getText().toString().trim();
-            if (!text.isEmpty()) {
-                sendMessage(text);
-            }
-        });
-    }
-
-    private void setupRecyclerView() {
-        messagesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        // Initialize with empty data; will be populated in loadMessages
-        messageAdapter = new MessageAdapter(new java.util.ArrayList<>(), new HashMap<>());
-        messagesRecyclerView.setAdapter(messageAdapter);
-    }
-
-    private void loadMessages() {
-        List<Message> messages = dbHelper.getMessages(currentUserId);
-        List<User> allUsers = dbHelper.getUsersList();
-        
-        Map<Integer, User> userMap = new HashMap<>();
-        for (User user : allUsers) {
-            userMap.put(user.getUserId(), user);
-        }
-
-        messageAdapter.updateMessages(messages, userMap);
-        if (messageAdapter.getItemCount() > 0) {
-            messagesRecyclerView.scrollToPosition(messageAdapter.getItemCount() - 1);
-        }
-    }
-
-    private void sendMessage(String text) {
-        long result = dbHelper.sendMessage(currentUserId, receiverId, text);
-        if (result != -1) {
-            messageInput.setText("");
-            loadMessages(); // Refresh list
-        } else {
-            Toast.makeText(getContext(), "Failed to send message", Toast.LENGTH_SHORT).show();
-        }
     }
 }
