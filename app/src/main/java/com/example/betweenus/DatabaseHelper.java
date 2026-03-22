@@ -21,7 +21,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -1188,7 +1187,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return list;
     }
-    public List<String> getDueTasks(SQLiteDatabase db) {
+    public List<String> getDueTasks(int UserID) {
         List<String> dueTasks = new ArrayList<>();
 
         String query = "SELECT TaskGoal FROM tasks " +
@@ -1229,6 +1228,54 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return randomTask;
     }
+    //takes userID and returns ArrayList of integers corresponding to the user's owned avatars
+    public ArrayList<Integer> getUserAvatars(int UserID) {
+        ArrayList<Integer> ownedAvatars= new ArrayList<Integer>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query =  "SELECT " + COL_AVATAR_OWNED + " FROM " + TABLE_AVATAR_OWNERSHIP +
+                " WHERE " + COL_USER_ID + " = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{ String.valueOf(UserID) });
+
+
+        if (cursor.moveToFirst()) {
+            do {
+                ownedAvatars.add(cursor.getInt(0));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+
+        return ownedAvatars;
+    }
+
+    public boolean addAvatar(int UserID, int AvatarID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String query = "SELECT 1 FROM " + TABLE_AVATAR_OWNERSHIP +
+                " WHERE " + COL_USER_ID + " = ? AND " + COL_AVATAR_OWNED + " = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{
+                String.valueOf(UserID),
+                String.valueOf(AvatarID)
+        });
+
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+
+        if (exists) {
+            return false; // already exists
+        }
+
+        ContentValues values = new ContentValues();
+        values.put(COL_USER_ID, UserID);
+        values.put(COL_AVATAR_OWNED, AvatarID);
+
+        long result = db.insert(TABLE_AVATAR_OWNERSHIP, null, values);
+        return result != -1;
+    }
+
+
 
 
 
