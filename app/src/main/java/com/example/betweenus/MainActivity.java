@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         //testCreateTask();
         testGetRandomSuggestion();
         testAvatarOwnership();
-        testAddAvatar();
+        //testAddAvatar();
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());

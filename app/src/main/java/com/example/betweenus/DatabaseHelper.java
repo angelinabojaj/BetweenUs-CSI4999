@@ -342,6 +342,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.query(TABLE_USERS, null, COL_NAME + "=?", new String[]{userName}, null, null, null);
     }
 
+    //returns int for userID
+    public int getIntUserID(String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        int userId = -1; // default if not found
+
+        Cursor cursor = db.rawQuery(
+                "SELECT id FROM users WHERE username = ?",
+                new String[]{username}
+        );
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                userId = cursor.getInt(0); // first column (id)
+            }
+            cursor.close();
+        }
+
+        return userId;
+    }
+
+
     // I need this to convert the ID into a username for add Friend use case
     public Cursor getUserByID(int userID) {
         SQLiteDatabase db = this.getReadableDatabase();
