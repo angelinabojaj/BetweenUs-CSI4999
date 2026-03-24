@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         testGetRandomSuggestion();
         testAvatarOwnership();
         //testAddAvatar();
+        testGetUserID();
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -242,6 +243,9 @@ public class MainActivity extends AppCompatActivity {
         return myDBHelper.addAvatar(UserID, AvatarID);
     }
 
+    private int getIntUserID(String userName){
+        return myDBHelper.getIntUserID(userName);
+    }
     private void testAddAvatar(){
         testAvatarOwnership();
         System.out.println(addAvatar(1,2));
@@ -253,5 +257,11 @@ public class MainActivity extends AppCompatActivity {
          ArrayList<Integer> testList = new ArrayList<Integer>();
         testList = getOwnedAvatars(1);
         System.out.println(testList);
+    }
+
+    private void testGetUserID(){
+        //System.out.println("Testing getUserID");
+        System.out.println(getIntUserID("Alex"));
+        //System.out.println("Done");
     }
 }

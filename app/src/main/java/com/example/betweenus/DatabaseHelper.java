@@ -348,7 +348,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         int userId = -1; // default if not found
 
         Cursor cursor = db.rawQuery(
-                "SELECT id FROM users WHERE username = ?",
+                "SELECT UserID FROM users WHERE username = ?",
                 new String[]{username}
         );
 
