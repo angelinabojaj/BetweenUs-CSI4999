@@ -15,20 +15,23 @@
         android:theme="@style/Theme.BetweenUs"
         tools:targetApi="31">
         <activity
-            android:name=".DrawingActivity"
+            android:name=".activities.PomodoroActivity"
             android:exported="false" />
         <activity
-            android:name=".MemoriesDetailActivity"
+            android:name=".activities.DrawingActivity"
             android:exported="false" />
         <activity
-            android:name=".CreateMemoryActivity"
+            android:name=".activities.MemoriesDetailActivity"
             android:exported="false" />
         <activity
-            android:name=".CreateAccountActivity"
+            android:name=".activities.CreateMemoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.CreateAccountActivity"
             android:exported="false"
             android:theme="@style/Theme.BetweenUs" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".activities.LoginActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

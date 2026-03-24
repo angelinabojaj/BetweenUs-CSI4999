@@ -1,4 +1,4 @@
-package com.example.betweenus;
+package com.example.betweenus.activities;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -10,6 +10,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.example.betweenus.DrawingView;
+import com.example.betweenus.R;
 
 import java.io.File;
 import java.io.FileOutputStream;

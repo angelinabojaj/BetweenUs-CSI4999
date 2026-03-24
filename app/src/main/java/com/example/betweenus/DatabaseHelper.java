@@ -1275,6 +1275,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result != -1;
     }
 
+//User premium status
+    public static boolean isUserPremium(DatabaseHelper db, int userId) {
+
+        SQLiteDatabase database = db.getReadableDatabase();
+
+        Cursor cursor = database.rawQuery(
+                "SELECT IsPremium FROM users WHERE UserID = ?",
+                new String[]{String.valueOf(userId)}
+        );
+
+        if (cursor.moveToFirst()) {
+            int isPremium = cursor.getInt(0);
+            cursor.close();
+            return isPremium == 1;
+        }
+
+        cursor.close();
+        return false;
+    }
+
 
 
 

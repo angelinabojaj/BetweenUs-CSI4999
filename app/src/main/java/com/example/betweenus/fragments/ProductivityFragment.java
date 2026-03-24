@@ -1,6 +1,7 @@
 package com.example.betweenus.fragments;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.betweenus.DatabaseHelper;
 import com.example.betweenus.R;
+import com.example.betweenus.activities.PomodoroActivity;
 import com.example.betweenus.adapter.TaskAdapter;
 import com.example.betweenus.model.Task;
 
@@ -35,10 +37,10 @@ public class ProductivityFragment extends Fragment {
     private EditText etTaskInput;
     private Button btnAddTask;
 
-    private ImageButton btnSuggestion;
+    private ImageButton btnSuggestion, btnPomodoro;
 
     // Hardcoded for now, should ideally come from user session
-    private int currentUserId = 1;
+    private int currentUserId = 2;
 
     public ProductivityFragment() {
         // Required empty public constructor
@@ -57,6 +59,8 @@ public class ProductivityFragment extends Fragment {
         btnAddTask = view.findViewById(R.id.btn_add_task);
 
         btnSuggestion = view.findViewById(R.id.btn_suggestion);
+        btnPomodoro = view.findViewById(R.id.btn_pomodoro);
+
 
         btnSuggestion.setOnClickListener(v -> {
 
@@ -66,6 +70,18 @@ public class ProductivityFragment extends Fragment {
                 showSuggestionDialog(suggestion);
             } else {
                 Toast.makeText(getContext(), "No suggestions found", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnPomodoro.setOnClickListener(v -> {
+
+            if (dbHelper.isUserPremium(dbHelper, currentUserId)) {
+
+                Intent intent = new Intent(getActivity(), PomodoroActivity.class);
+                startActivity(intent);
+
+            } else {
+                Toast.makeText(getContext(), "Premium feature 🌟", Toast.LENGTH_SHORT).show();
             }
         });
 

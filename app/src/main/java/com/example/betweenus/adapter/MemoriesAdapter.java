@@ -2,8 +2,6 @@ package com.example.betweenus.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.betweenus.DatabaseHelper;
-import com.example.betweenus.MemoriesDetailActivity;
+import com.example.betweenus.activities.MemoriesDetailActivity;
 import com.example.betweenus.R;
 import com.example.betweenus.model.MemoriesItem;
 
