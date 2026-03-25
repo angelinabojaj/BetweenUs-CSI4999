@@ -28,6 +28,8 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.betweenus.databinding.ActivityMainBinding;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
         testLogin();
         //testCreateTask();
         testGetRandomSuggestion();
+        testAvatarOwnership();
+        //testAddAvatar();
+        testGetUserID();
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -228,5 +233,35 @@ public class MainActivity extends AppCompatActivity {
            Log.e("LOG_TEST","Login Test Successful");
        }
        else Log.e("LOG_TEST","Login Test unsuccessful");
+    }
+
+    public ArrayList<Integer> getOwnedAvatars(int UserID){
+        return myDBHelper.getUserAvatars(UserID);
+    }
+
+    public boolean addAvatar(int UserID, int AvatarID){
+        return myDBHelper.addAvatar(UserID, AvatarID);
+    }
+
+    private int getIntUserID(String userName){
+        return myDBHelper.getIntUserID(userName);
+    }
+    private void testAddAvatar(){
+        testAvatarOwnership();
+        System.out.println(addAvatar(1,2));
+        testAvatarOwnership();
+    }
+
+
+    private void testAvatarOwnership(){
+         ArrayList<Integer> testList = new ArrayList<Integer>();
+        testList = getOwnedAvatars(1);
+        System.out.println(testList);
+    }
+
+    private void testGetUserID(){
+        //System.out.println("Testing getUserID");
+        System.out.println(getIntUserID("Alex"));
+        //System.out.println("Done");
     }
 }

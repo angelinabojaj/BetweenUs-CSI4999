@@ -1,6 +1,5 @@
 package com.example.betweenus.fragments;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,14 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -26,17 +21,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.betweenus.DatabaseHelper;
-import com.example.betweenus.DrawingActivity;
+import com.example.betweenus.activities.DrawingActivity;
 import com.example.betweenus.R;
 import com.example.betweenus.adapter.AvatarAdapter;
 import com.example.betweenus.adapter.AvatarPagerAdapter;
 import com.example.betweenus.adapter.DashboardAdapter;
 import com.example.betweenus.adapter.TodoPreviewAdapter;
-import com.example.betweenus.databinding.FragmentHomeBinding;
 import com.example.betweenus.model.AvatarGroup;
-import com.example.betweenus.model.DashboardMessage;
 import com.example.betweenus.model.User;
-import com.example.betweenus.ui.home.HomeViewModel;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DrawingActivity">
+    tools:context=".activities.DrawingActivity">
 
     <com.example.betweenus.DrawingView
         android:id="@+id/drawingView"

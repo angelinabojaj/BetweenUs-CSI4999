@@ -1,4 +1,4 @@
-package com.example.betweenus;
+package com.example.betweenus.activities;
 
 import android.app.AlertDialog;
 import android.database.Cursor;
@@ -20,6 +20,8 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.betweenus.DatabaseHelper;
+import com.example.betweenus.R;
 import com.example.betweenus.adapter.CommentAdapter;
 import com.example.betweenus.model.Comment;
 

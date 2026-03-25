@@ -1,4 +1,4 @@
-package com.example.betweenus;
+package com.example.betweenus.activities;
 
 import android.os.Bundle;
 import android.widget.Button;
@@ -9,6 +9,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.example.betweenus.DatabaseHelper;
+import com.example.betweenus.R;
 
 public class CreateMemoryActivity extends AppCompatActivity {
     EditText etTitle, etBody;

@@ -36,6 +36,19 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
+        android:id="@+id/btn_pomodoro"
+        android:layout_width="35dp"
+        android:layout_height="40dp"
+        android:layout_margin="12dp"
+        android:background="@android:color/transparent"
+        android:elevation="7dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/pomodoro_btn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="#FFADAD" />
+
+    <ImageButton
         android:id="@+id/btn_suggestion"
         android:layout_width="35dp"
         android:layout_height="40dp"
