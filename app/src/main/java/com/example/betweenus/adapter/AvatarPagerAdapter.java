@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,13 +22,25 @@ public class AvatarPagerAdapter extends RecyclerView.Adapter<AvatarPagerAdapter.
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView left, center, right;
+
+        ImageView leftImg, centerImg, rightImg;
+        TextView leftName, centerName, rightName;
+        View leftContainer, centerContainer, rightContainer;
 
         public ViewHolder(View view) {
             super(view);
-            left = view.findViewById(R.id.avatarLeft);
-            center = view.findViewById(R.id.avatarCenter);
-            right = view.findViewById(R.id.avatarRight);
+
+            leftContainer = view.findViewById(R.id.avatarLeft);
+            centerContainer = view.findViewById(R.id.avatarCenter);
+            rightContainer = view.findViewById(R.id.avatarRight);
+
+            leftImg = leftContainer.findViewById(R.id.imgAvatar);
+            centerImg = centerContainer.findViewById(R.id.imgAvatar);
+            rightImg = rightContainer.findViewById(R.id.imgAvatar);
+
+            leftName = leftContainer.findViewById(R.id.txt_status);
+            centerName = centerContainer.findViewById(R.id.txt_status);
+            rightName = rightContainer.findViewById(R.id.txt_status);
         }
     }
 
@@ -42,15 +55,32 @@ public class AvatarPagerAdapter extends RecyclerView.Adapter<AvatarPagerAdapter.
     public void onBindViewHolder(ViewHolder holder, int position) {
         AvatarGroup group = avatarGroups.get(position);
 
-        holder.left.setImageResource(group.leftAvatar);
-        holder.center.setImageResource(group.centerAvatar);
-        holder.right.setImageResource(group.rightAvatar);
+        // CENTER
+        holder.centerImg.setImageResource(group.centerAvatar);
+        holder.centerName.setText(group.centerName);
+
+        // LEFT
+        if (group.leftAvatar != null) {
+            holder.leftContainer.setVisibility(View.VISIBLE);
+            holder.leftImg.setImageResource(group.leftAvatar);
+            holder.leftName.setText(group.leftName);
+        } else {
+            holder.leftContainer.setVisibility(View.INVISIBLE);
+        }
+
+        // RIGHT
+        if (group.rightAvatar != null) {
+            holder.rightContainer.setVisibility(View.VISIBLE);
+            holder.rightImg.setImageResource(group.rightAvatar);
+            holder.rightName.setText(group.rightName);
+        } else {
+            holder.rightContainer.setVisibility(View.INVISIBLE);
+        }
     }
+
 
     @Override
     public int getItemCount() {
         return avatarGroups.size();
     }
 }
-
-
