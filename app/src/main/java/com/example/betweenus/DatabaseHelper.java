@@ -1098,7 +1098,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COL_SENDER_ID, senderId);
         values.put(COL_RECEIVER_ID, receiverId);
-        values.put(COL_POST_TEXT, text);
+        values.put(COL_MESSAGE_TEXT, text);
         values.put(COL_MESSAGE_TIME, System.currentTimeMillis());
 
         return db.insert(TABLE_MESSAGES, null, values);
@@ -1149,6 +1149,42 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cursor.close();
         }
 
+        return list;
+    }
+
+    public List<Message> getMessagesBetween(int user1, int user2) {
+        List<Message> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String queryStr = "SELECT * FROM " + TABLE_MESSAGES +
+                " WHERE (" + COL_SENDER_ID + " = ? AND " + COL_RECEIVER_ID + " = ?)" +
+                " OR (" + COL_SENDER_ID + " = ? AND " + COL_RECEIVER_ID + " = ?)" +
+                " ORDER BY " + COL_MESSAGE_TIME;
+
+        Cursor cursor = db.rawQuery(
+                queryStr,
+                new String[]{String.valueOf(user1), String.valueOf(user2), String.valueOf(user2), String.valueOf(user1)}
+        );
+
+        if (cursor != null) {
+            int idIndex = cursor.getColumnIndexOrThrow(COL_MESSAGE_ID);
+            int senderIndex = cursor.getColumnIndexOrThrow(COL_SENDER_ID);
+            int receiverIndex = cursor.getColumnIndexOrThrow(COL_RECEIVER_ID);
+            int contentIndex = cursor.getColumnIndexOrThrow(COL_MESSAGE_TEXT);
+            int timeIndex = cursor.getColumnIndexOrThrow(COL_MESSAGE_TIME);
+
+            while (cursor.moveToNext()) {
+                int id = cursor.getInt(idIndex);
+                int senderId = cursor.getInt(senderIndex);
+                int receiverId = cursor.getInt(receiverIndex);
+                String content = cursor.getString(contentIndex);
+                String messageTime = cursor.getString(timeIndex);
+
+                Message message = new Message(id, senderId, receiverId, content, messageTime);
+                list.add(message);
+            }
+            cursor.close();
+        }
         return list;
     }
 
@@ -1337,4 +1373,3 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 //    }
 
 }
-
