@@ -83,7 +83,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_MESSAGES = "messages";
     private static final String COL_MESSAGE_ID = "MessageID";
     private static final String COL_MESSAGE_SENDER_ID = "SenderID";
-    private static final String COL_RECEIVER_ID = "ReceiverID";
+    private static final String COL_RECEIVER_ID = "RecieverID";
     private static final String COL_MESSAGE_TEXT = "MessageText";
     private static final String COL_MESSAGE_TIME = "MessageTime";
 
