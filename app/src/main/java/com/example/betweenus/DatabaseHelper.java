@@ -7,6 +7,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.example.betweenus.model.AvatarGroup;
 import com.example.betweenus.model.Comment;
 import com.example.betweenus.model.DashboardMessage;
 import com.example.betweenus.model.Friend;
@@ -923,17 +924,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //*** homepage methods ****
 
     // UPDATE USER MOOD
-    public void updateUserMood(int userId, String mood) {
+    public void updateUserMood(int userId, int mood) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(COL_MOOD, mood);
 
-        db.update(TABLE_USERS,
+        db.update(
+                TABLE_USERS,
                 values,
                 COL_USER_ID + "=?",
-                new String[]{String.valueOf(userId)});
+                new String[]{String.valueOf(userId)}
+        );
     }
 
 // INSERT DASHBOARD MESSAGE
@@ -1350,6 +1353,146 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         cursor.close();
         return false;
+    }
+
+    public List<AvatarGroup> getAvatarGroups(int currentUserId) {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        List<AvatarGroup> groups = new ArrayList<>();
+
+        // -----------------------------
+        // GET CURRENT USER (CENTER)
+        // -----------------------------
+        Cursor userCursor = db.rawQuery(
+                "SELECT UserName, Avatar, CurrentMood FROM users WHERE UserID = ?",
+                new String[]{String.valueOf(currentUserId)}
+        );
+
+        String centerName = "";
+        int centerAvatar = R.drawable.giraffe_neutral; // fallback
+
+        if (userCursor != null && userCursor.moveToFirst()) {
+
+            centerName = userCursor.getString(0);
+
+            int avatarType = userCursor.getInt(1);
+            int mood = userCursor.getInt(2);
+
+            centerAvatar = getAvatarDrawable(avatarType, mood);
+        }
+
+        if (userCursor != null) userCursor.close();
+
+        // -----------------------------
+        // GET ALL FRIENDS
+        // -----------------------------
+        Cursor friendCursor = db.rawQuery(
+                "SELECT UserName, Avatar, CurrentMood FROM users WHERE UserID IN (" +
+                        "SELECT First_Friend_ID FROM friends WHERE Second_Friend_ID = ? " +
+                        "UNION " +
+                        "SELECT Second_Friend_ID FROM friends WHERE First_Friend_ID = ?" +
+                        ") ORDER BY UserName",
+                new String[]{String.valueOf(currentUserId), String.valueOf(currentUserId)}
+        );
+
+        List<User> friends = new ArrayList<>();
+
+        if (friendCursor != null) {
+            while (friendCursor.moveToNext()) {
+
+                String name = friendCursor.getString(0);
+                int avatarType = friendCursor.getInt(1);
+                int mood = friendCursor.getInt(2);
+
+                int avatarRes = getAvatarDrawable(avatarType, mood);
+
+                // Use your existing User constructor
+                friends.add(new User(0, name, "", avatarRes));
+            }
+            friendCursor.close();
+        }
+
+        // -----------------------------
+        // SPLIT INTO GROUPS OF 2 FRIENDS
+        // -----------------------------
+        for (int i = 0; i < friends.size(); i += 2) {
+
+            Integer leftAvatar = null;
+            String leftName = null;
+
+            Integer rightAvatar = null;
+            String rightName = null;
+
+            // LEFT friend
+            if (i < friends.size()) {
+                leftAvatar = friends.get(i).getAvatar();
+                leftName = friends.get(i).getName();
+            }
+
+            // RIGHT friend
+            if (i + 1 < friends.size()) {
+                rightAvatar = friends.get(i + 1).getAvatar();
+                rightName = friends.get(i + 1).getName();
+            }
+
+            groups.add(new AvatarGroup(
+                    leftAvatar, leftName,
+                    centerAvatar, centerName,
+                    rightAvatar, rightName
+            ));
+        }
+
+        // -----------------------------
+        // NO FRIENDS CASE
+        // -----------------------------
+        if (groups.isEmpty()) {
+            groups.add(new AvatarGroup(
+                    null, null,
+                    centerAvatar, centerName,
+                    null, null
+            ));
+        }
+
+        return groups;
+    }
+
+
+    private int getAvatarDrawable(int avatarType, int mood) {
+
+        switch (avatarType) {
+            case 0: // giraffe
+                switch (mood) {
+                    case 0: return R.drawable.giraffe_happy;
+                    case 1: return R.drawable.giraffe_sad;
+                    case 2: return R.drawable.giraffe_excited;
+                    case 3: return R.drawable.giraffe_neutral;
+                    case 4: return R.drawable.giraffe_angry;
+                }
+                break;
+
+            case 1: // puppy
+                switch (mood) {
+                    case 0: return R.drawable.puppy_happy;
+                    case 1: return R.drawable.puppy_sad;
+                    case 2: return R.drawable.puppy_excited;
+                    case 3: return R.drawable.puppy_neutral;
+                    case 4: return R.drawable.puppy_angry;
+                }
+                break;
+
+            case 2: // bunny
+                switch (mood) {
+                    case 0: return R.drawable.bunny_happy;
+                    case 1: return R.drawable.bunny_sad;
+                    case 2: return R.drawable.bunny_excited;
+                    case 3: return R.drawable.bunny_neutral;
+                    case 4: return R.drawable.bunny_angry;
+                }
+                break;
+        }
+
+        return R.drawable.giraffe_neutral; // fallback
     }
 
 

@@ -213,40 +213,13 @@ public class HomeFragment extends Fragment {
     // -----------------------------
     private void setupAvatars() {
 
-//        recyclerAvatars.setLayoutManager(
-//                new LinearLayoutManager(getContext(),
-//                        LinearLayoutManager.HORIZONTAL, false)
-//        );
+        List<AvatarGroup> avatarGroups =
+                dbHelper.getAvatarGroups(currentUserId);
 
-//        List<User> users = dbHelper.getUserAndFriends(currentUserId);
-        List<AvatarGroup> avatarGroups = new ArrayList<>();
-
-        avatarGroups.add(new AvatarGroup(
-                R.drawable.puppy_happy,
-                R.drawable.giraffe_happy,
-                R.drawable.bunny_happy
-        ));
-
-        avatarGroups.add(new AvatarGroup(
-                R.drawable.giraffe_happy,
-                R.drawable.bunny_happy,
-                R.drawable.puppy_happy
-        ));
-
-        avatarGroups.add(new AvatarGroup(
-                R.drawable.bunny_happy,
-                R.drawable.puppy_happy,
-                R.drawable.giraffe_happy
-        ));
-
-//        avatarAdapter = new AvatarAdapter(users, currentUserId);
-//        recyclerAvatars.setAdapter(avatarAdapter);
-
-        AvatarPagerAdapter adapter = new AvatarPagerAdapter(avatarGroups);
+        AvatarPagerAdapter adapter =
+                new AvatarPagerAdapter(avatarGroups);
 
         avatarPager.setAdapter(adapter);
-
-
     }
 
     // -----------------------------
@@ -254,20 +227,25 @@ public class HomeFragment extends Fragment {
     // -----------------------------
     private void setupMoodButtons() {
 
-        moodHappy.setOnClickListener(v -> updateMood("Happy"));
-        moodNeutral.setOnClickListener(v -> updateMood("Neutral"));
-        moodSad.setOnClickListener(v -> updateMood("Sad"));
-        moodAngry.setOnClickListener(v -> updateMood("Angry"));
-        moodExcited.setOnClickListener(v -> updateMood("Excited"));
+        moodHappy.setOnClickListener(v -> updateMood(0));
+        moodSad.setOnClickListener(v -> updateMood(1));
+        moodExcited.setOnClickListener(v -> updateMood(2));
+        moodNeutral.setOnClickListener(v -> updateMood(3));
+        moodAngry.setOnClickListener(v -> updateMood(4));
     }
 
-    private void updateMood(String mood) {
+    private void updateMood(int mood) {
         dbHelper.updateUserMood(currentUserId, mood);
-
-        // refresh avatars
-        List<User> users = dbHelper.getUserAndFriends(currentUserId);
-        avatarAdapter.updateUsers(users);
+        setupAvatars();
     }
+
+//    private void updateMood(String mood) {
+//        dbHelper.updateUserMood(currentUserId, mood);
+//
+//        // refresh avatars
+//        List<User> users = dbHelper.getUserAndFriends(currentUserId);
+//        avatarAdapter.updateUsers(users);
+//    }
 
     // -----------------------------
     // NAVIGATION

@@ -15,6 +15,9 @@
         android:theme="@style/Theme.BetweenUs"
         tools:targetApi="31">
         <activity
+            android:name=".activities.ShopActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.PomodoroActivity"
             android:exported="false" />
         <activity
