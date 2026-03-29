@@ -13,6 +13,7 @@ import com.example.betweenus.model.DashboardMessage;
 import com.example.betweenus.model.Friend;
 import com.example.betweenus.model.MemoriesItem;
 import com.example.betweenus.model.Message;
+import com.example.betweenus.model.ShopItem;
 import com.example.betweenus.model.Task;
 import com.example.betweenus.model.User;
 import com.example.betweenus.model.UserHistory;
@@ -54,6 +55,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL_OWNERSHIP_ID = "OwnershipID";
     private static final String COL_User_ID = "UserID";
     private static final String COL_AVATAR_OWNED = "AvatarOwned";
+
+    // shopitemownership Table
+    private static final String TABLE_SHOP_ITEM_OWNERSHIP = "shopitemownership";
+    private static final String COL_SHOP_ITEM_OWNERSHIP = "OwnershipID";
+    private static final String COL_BUYER_ID = "UserID";
+    private static final String COL_SHOP_ITEM_OWNED = "ShopItemOwned";
 
     // Dashboard Table
     private static final String TABLE_DASHBOARD = "dashboard";
@@ -126,6 +133,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_COMMENT_MEMORY_ID = "MemoryID";
     public static final String COL_COMMENT_BODY = "CommentBody";
     public static final String COL_COMMENT_TIME_STAMP = "CommentTimeStamp";
+
+    // Shop Table
+    public static final String TABLE_SHOP = "shop";
+    public static final String COL_ITEM_ID = "itemID";
+    public static final String COL_ITEM_NAME = "ItemName";
+    public static final String COL_ITEM_PRICE = "ItemPrice";
+    public static final String COL_ITEM_DESCRIPTION = "ItemDescription";
+    public static final String COL_ITEM_IMAGE_PATH = "ImagePath";
+
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -211,6 +227,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SUBTASKS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SUGGESTIONS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER_HISTORY);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SHOP);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SHOP_ITEM_OWNERSHIP);
         onCreate(db);
     }
 
@@ -1511,6 +1529,151 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         return R.drawable.bunny_happy; // fallback
+    }
+
+    public List<ShopItem> getShopItems() {
+
+        List<ShopItem> ShopItemList = new ArrayList<>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String queryStr = "SELECT * FROM " + TABLE_SHOP;
+
+        Cursor cursor = db.rawQuery(queryStr, null);
+
+        if (cursor != null) {
+
+            int ItemIDIndex = cursor.getColumnIndexOrThrow(COL_ITEM_ID);
+            int ItemNameIndex = cursor.getColumnIndexOrThrow(COL_ITEM_NAME);
+            int ItemDescriptionIndex = cursor.getColumnIndexOrThrow(COL_ITEM_DESCRIPTION);
+            int ItemPriceIndex = cursor.getColumnIndexOrThrow(COL_ITEM_PRICE);
+            int ItemImagePathIndex = cursor.getColumnIndexOrThrow(COL_ITEM_IMAGE_PATH);
+
+            while (cursor.moveToNext()) {
+
+                int id = cursor.getInt(ItemIDIndex);
+                String name = cursor.getString(ItemNameIndex);
+                String description = cursor.getString(ItemDescriptionIndex);
+                int price = cursor.getInt(ItemPriceIndex);
+                String imagePath = cursor.getString(ItemImagePathIndex);
+
+                ShopItem newShopItem = new ShopItem(id, name, description, price, imagePath);
+                ShopItemList.add(newShopItem);
+            }
+
+            cursor.close();
+        }
+
+        return ShopItemList;
+    }
+
+    public ArrayList<Integer> getShopItemsOwned(int UserID) {
+        ArrayList<Integer> ownedShopItems= new ArrayList<Integer>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query =  "SELECT " + COL_SHOP_ITEM_OWNED + " FROM " + TABLE_SHOP_ITEM_OWNERSHIP +
+                " WHERE " + COL_USER_ID + " = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{ String.valueOf(UserID) });
+
+
+        if (cursor.moveToFirst()) {
+            do {
+                ownedShopItems.add(cursor.getInt(0));
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+
+        return ownedShopItems;
+    }
+
+    public boolean buyItem(int UserID, int ShopItemID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String query = "SELECT 1 FROM " + TABLE_SHOP_ITEM_OWNERSHIP +
+                " WHERE " + COL_USER_ID + " = ? AND " + COL_SHOP_ITEM_OWNED + " = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{
+                String.valueOf(UserID),
+                String.valueOf(ShopItemID)
+        });
+
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+
+        if (exists) {
+            return false; // already exists
+        }
+
+        ContentValues values = new ContentValues();
+        values.put(COL_USER_ID, UserID);
+        values.put(COL_SHOP_ITEM_OWNED, ShopItemID);
+
+        long result = db.insert(TABLE_SHOP_ITEM_OWNERSHIP, null, values);
+        return result != -1;
+    }
+
+    public boolean spendUserPoints(int UserID, int points) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // 1. Get current points
+        String query = "SELECT " + COL_POINTS +
+                " FROM " + TABLE_USERS +
+                " WHERE " + COL_USER_ID + " = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{
+                String.valueOf(UserID)
+        });
+
+        // If user not found
+        if (!cursor.moveToFirst()) {
+            cursor.close();
+            return false;
+        }
+
+        int currentPoints = cursor.getInt(cursor.getColumnIndexOrThrow(COL_POINTS));
+        cursor.close();
+
+        // 2. Check if enough points
+        if (points > currentPoints) {
+            return false; // would go negative
+        }
+
+        // 3. Update points
+        int newPoints = currentPoints - points;
+
+        ContentValues values = new ContentValues();
+        values.put(COL_POINTS, newPoints);
+
+        int result = db.update(
+                TABLE_USERS,
+                values,
+                COL_USER_ID + " = ?",
+                new String[]{String.valueOf(UserID)}
+        );
+
+        return result > 0;
+    }
+
+    public int getUserPoints(int UserID) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT " + COL_POINTS +
+                " FROM " + TABLE_USERS +
+                " WHERE " + COL_USER_ID + " = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{
+                String.valueOf(UserID)
+        });
+
+        int points = 0;
+
+        if (cursor.moveToFirst()) {
+            points = cursor.getInt(cursor.getColumnIndexOrThrow(COL_POINTS));
+        }
+
+        cursor.close();
+        return points;
     }
 
 

@@ -13,6 +13,7 @@ import com.example.betweenus.fragments.MemoriesFragment;
 import com.example.betweenus.fragments.ProductivityFragment;
 import com.example.betweenus.fragments.ProfileFragment;
 import com.example.betweenus.fragments.HomeFragment;
+import com.example.betweenus.model.ShopItem;
 import com.example.betweenus.model.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -50,6 +51,10 @@ public class MainActivity extends AppCompatActivity {
         testAvatarOwnership();
         //testAddAvatar();
         testGetUserID();
+        testChangePoints();
+        //testBuyItem();
+        testGetShopItems();
+
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -197,6 +202,61 @@ public class MainActivity extends AppCompatActivity {
         return myDBHelper.getRandomSuggestion();
     }
 
+    //function for adding or spending points (use negative values when adding points to a user's balance)
+    //this function returns true if points were successfully added/deducted and false if the user's balance would go negative
+    public boolean changePoints(int UserID, int points){ return myDBHelper.spendUserPoints(UserID, points);}
+    //call changePoints first and ensure it succeeds before calling this function, if changePoints returns false then the user has insufficient points
+    //if this function returns false, the user either already owns the item or there was an error
+    public boolean buyShopItem(int UserID, int ShopItemId){ return myDBHelper.buyItem(UserID, ShopItemId);}
+
+    public int getUserPoints(int UserID){ return myDBHelper.getUserPoints(UserID);}
+    public ArrayList<Integer> getOwnedShopItems(int UserID){
+        return myDBHelper.getShopItemsOwned(UserID);
+    }
+
+    public void testGetShopItems() {
+        // 1. Retrieve all shop items
+        List<ShopItem> shopItems = myDBHelper.getShopItems();
+
+        // 2. Print the results
+        System.out.println("Shop Items:");
+
+        for (ShopItem item : shopItems) {
+            System.out.println("ID: " + item.getItemID() +
+                    ", Name: " + item.getItemName() +
+                    ", Description: " + item.getItemDescription() +
+                    ", Price: " + item.getItemPrice() +
+                    ", ImagePath: " + item.getImagePath());
+        }
+    }
+
+
+    public void testChangePoints(){
+        System.out.println(getUserPoints(1));
+        changePoints(1, 1);
+        System.out.println(getUserPoints(1));
+        changePoints(1,-1);
+        System.out.println(getUserPoints(1));
+    }
+
+    public void testBuyItem() {
+        int userID = 1;
+        int itemID = 2;
+
+        // 1. Get owned items BEFORE
+        ArrayList<Integer> beforeItems = getOwnedShopItems(userID);
+        System.out.println("Before purchase: " + beforeItems);
+
+        // 2. Attempt to buy the item
+        boolean bought = myDBHelper.buyItem(userID, itemID);
+        System.out.println("Item bought: " + bought);
+
+        // 3. Get owned items AFTER
+        ArrayList<Integer> afterItems = getOwnedShopItems(userID);
+        System.out.println("After purchase: " + afterItems);
+    }
+
+
     public void testGetRandomSuggestion(){
         System.out.println(getRandomSuggestion());
     }
@@ -256,6 +316,11 @@ public class MainActivity extends AppCompatActivity {
     private void testAvatarOwnership(){
          ArrayList<Integer> testList = new ArrayList<Integer>();
         testList = getOwnedAvatars(1);
+        System.out.println(testList);
+    }
+    private void testShopItemOwnership(){
+        ArrayList<Integer> testList = new ArrayList<Integer>();
+        testList = getOwnedShopItems(1);
         System.out.println(testList);
     }
 
