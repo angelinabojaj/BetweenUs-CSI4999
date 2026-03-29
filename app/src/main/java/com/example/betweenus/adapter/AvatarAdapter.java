@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.betweenus.DatabaseHelper;
 import com.example.betweenus.R;
 import com.example.betweenus.model.User;
 
@@ -17,10 +18,11 @@ import java.util.List;
 public class AvatarAdapter extends RecyclerView.Adapter<AvatarAdapter.ViewHolder> {
 
     private List<User> users;
-    private int currentUserId;
+    DatabaseHelper dbHelper = new DatabaseHelper(null);
+//    private int currentUserId;
 
     public AvatarAdapter(List<User> users, int currentUserId) {
-        this.currentUserId = currentUserId;
+        dbHelper.currentUserId = currentUserId;
         this.users = sortUsers(users);
     }
 
@@ -30,7 +32,7 @@ public class AvatarAdapter extends RecyclerView.Adapter<AvatarAdapter.ViewHolder
         User current = null;
 
         for (User u : list) {
-            if (u.getUserId() == currentUserId)
+            if (u.getUserId() == dbHelper.currentUserId)
                 current = u;
         }
 
@@ -84,57 +86,6 @@ public class AvatarAdapter extends RecyclerView.Adapter<AvatarAdapter.ViewHolder
         holder.avatar.setImageResource(avatarResId);
     }
 
-//    private int getAvatarDrawable(User user) {
-//
-//        String mood = user.getMood();
-//        int avatarType = user.getAvatar();
-
-//        switch (avatarType) {
-//
-//            case 1: // Kitty
-//                switch (mood) {
-//                    case "Happy": return R.drawable.kitty_happy;
-//                    case "Sad": return R.drawable.kitty_sad;
-//                    case "Neutral": return R.drawable.kitty_neutral;
-//                    case "Angry": return R.drawable.kitty_angry;
-//                    case "Excited": return R.drawable.kitty_excited;
-//                    default: return R.drawable.kitty_neutral;
-//                }
-//
-//            case 2: // Giraffe
-//                switch (mood) {
-//                    case "Happy": return R.drawable.giraffe_happy;
-//                    case "Sad": return R.drawable.giraffe_sad;
-//                    case "Neutral": return R.drawable.giraffe_neutral;
-//                    case "Angry": return R.drawable.giraffe_angry;
-//                    case "Excited": return R.drawable.giraffe_excited;
-//                    default: return R.drawable.giraffe_neutral;
-//                }
-//
-//            case 3: // Bunny
-//                switch (mood) {
-//                    case "Happy": return R.drawable.bunny_happy;
-//                    case "Sad": return R.drawable.bunny_sad;
-//                    case "Neutral": return R.drawable.bunny_neutral;
-//                    case "Angry": return R.drawable.bunny_angry;
-//                    case "Excited": return R.drawable.bunny_excited;
-//                    default: return R.drawable.bunny_neutral;
-//                }
-//
-//            case 4: // Puppy
-//                switch (mood) {
-//                    case "Happy": return R.drawable.puppy_happy;
-//                    case "Sad": return R.drawable.puppy_sad;
-//                    case "Neutral": return R.drawable.puppy_neutral;
-//                    case "Angry": return R.drawable.puppy_angry;
-//                    case "Excited": return R.drawable.puppy_excited;
-//                    default: return R.drawable.puppy_neutral;
-//                }
-//
-//            default:
-//                return R.drawable.kitty_neutral;
-//        }
-//    }
 
     @Override
     public int getItemCount() {

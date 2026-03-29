@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Random;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
+
+    public int currentUserId = 1;
     private static final String DATABASE_NAME = "BetweenUs.db";
     public static final int DATABASE_VERSION = 5; // increase this
     //private static String DB_PATH = "/data/data/BetweenUs/databases/";
@@ -280,6 +282,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+
+
     //Get Tasks For User
     public Cursor getUserTasks(String query) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -342,6 +346,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.query(TABLE_USERS, null, COL_NAME + "=?", new String[]{userName}, null, null, null);
     }
+
+
 
     //returns int for userID
     public int getIntUserID(String username) {
@@ -1461,7 +1467,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private int getAvatarDrawable(int avatarType, int mood) {
 
         switch (avatarType) {
-            case 0: // giraffe
+
+
+            case 1: // bunny
+                switch (mood) {
+                    case 0: return R.drawable.bunny_happy;
+                    case 1: return R.drawable.bunny_sad;
+                    case 2: return R.drawable.bunny_excited;
+                    case 3: return R.drawable.bunny_neutral;
+                    case 4: return R.drawable.bunny_angry;
+                }
+                break;
+            case 2: // giraffe
                 switch (mood) {
                     case 0: return R.drawable.giraffe_happy;
                     case 1: return R.drawable.giraffe_sad;
@@ -1471,7 +1488,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 }
                 break;
 
-            case 1: // puppy
+            case 3: // kitty
+                switch (mood) {
+                    case 0: return R.drawable.kitty_happy;
+                    case 1: return R.drawable.kitty_sad;
+                    case 2: return R.drawable.kitty_excited;
+                    case 3: return R.drawable.kitty_neutral;
+                    case 4: return R.drawable.kitty_angry;
+                }
+                break;
+
+
+            case 4: // puppy
                 switch (mood) {
                     case 0: return R.drawable.puppy_happy;
                     case 1: return R.drawable.puppy_sad;
@@ -1480,19 +1508,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     case 4: return R.drawable.puppy_angry;
                 }
                 break;
-
-            case 2: // bunny
-                switch (mood) {
-                    case 0: return R.drawable.bunny_happy;
-                    case 1: return R.drawable.bunny_sad;
-                    case 2: return R.drawable.bunny_excited;
-                    case 3: return R.drawable.bunny_neutral;
-                    case 4: return R.drawable.bunny_angry;
-                }
-                break;
         }
 
-        return R.drawable.giraffe_neutral; // fallback
+        return R.drawable.bunny_happy; // fallback
     }
 
 

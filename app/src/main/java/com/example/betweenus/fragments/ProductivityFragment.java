@@ -40,7 +40,7 @@ public class ProductivityFragment extends Fragment {
     private ImageButton btnSuggestion, btnPomodoro;
 
     // Hardcoded for now, should ideally come from user session
-    private int currentUserId = 2;
+//    private int currentUserId = 1;
 
     public ProductivityFragment() {
         // Required empty public constructor
@@ -75,7 +75,7 @@ public class ProductivityFragment extends Fragment {
 
         btnPomodoro.setOnClickListener(v -> {
 
-            if (dbHelper.isUserPremium(dbHelper, currentUserId)) {
+            if (dbHelper.isUserPremium(dbHelper, dbHelper.currentUserId)) {
 
                 Intent intent = new Intent(getActivity(), PomodoroActivity.class);
                 startActivity(intent);
@@ -97,7 +97,7 @@ public class ProductivityFragment extends Fragment {
         btnAddTask.setOnClickListener(v -> {
             String goal = etTaskInput.getText().toString().trim();
             if (!goal.isEmpty()) {
-                long result = dbHelper.createTask(currentUserId, goal, 0, "Today");
+                long result = dbHelper.createTask(dbHelper.currentUserId, goal, 0, "Today");
                 if (result != -1) {
                     etTaskInput.setText("");
                     loadTasks();
@@ -115,7 +115,7 @@ public class ProductivityFragment extends Fragment {
 
     private void loadTasks() {
         taskList.clear();
-        Cursor cursor = dbHelper.getUserTasks(String.valueOf(currentUserId));
+        Cursor cursor = dbHelper.getUserTasks(String.valueOf(dbHelper.currentUserId));
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 int id = cursor.getInt(cursor.getColumnIndexOrThrow("TaskID"));

@@ -41,7 +41,7 @@ public class MessagingFragment extends Fragment {
     
     // For demo purposes, we'll use a fixed current user ID and receiver ID
     // In a real app, these would be passed in or retrieved from a session
-    private int currentUserId = 1; 
+//    private int currentUserId = 1;
     private int receiverId = 2; 
 
     public MessagingFragment() {
@@ -112,12 +112,12 @@ public class MessagingFragment extends Fragment {
         messagesRecyclerView.setLayoutManager(layoutManager);
         
         // Initialize with empty data
-        messageAdapter = new MessageAdapter(new java.util.ArrayList<>(), new HashMap<>(), currentUserId);
+        messageAdapter = new MessageAdapter(new java.util.ArrayList<>(), new HashMap<>(), dbHelper.currentUserId);
         messagesRecyclerView.setAdapter(messageAdapter);
     }
 
     private void loadMessages() {
-        List<Message> messages = dbHelper.getMessagesBetween(currentUserId, receiverId);
+        List<Message> messages = dbHelper.getMessagesBetween(dbHelper.currentUserId, receiverId);
         List<User> allUsers = dbHelper.getUsersList();
 
         Map<Integer, User> userMap = new HashMap<>();
@@ -132,7 +132,7 @@ public class MessagingFragment extends Fragment {
     }
 
     private void sendMessage(String text) {
-        long result = dbHelper.sendMessage(currentUserId, receiverId, text);
+        long result = dbHelper.sendMessage(dbHelper.currentUserId, receiverId, text);
         if (result != -1) {
             messageInput.setText("");
             loadMessages(); // Refresh list

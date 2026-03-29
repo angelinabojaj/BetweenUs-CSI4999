@@ -48,7 +48,7 @@ public class HomeFragment extends Fragment {
     private SharedTodoViewModel todoViewModel;
     private DatabaseHelper dbHelper;
 
-    private int currentUserId = 1;
+
 
     private final long EXPIRATION_HOURS = 4; // dashboard expiration
 
@@ -65,7 +65,7 @@ public class HomeFragment extends Fragment {
 
         Bundle args = getArguments();
         if (args != null) {
-            currentUserId = args.getInt("USER_ID", -1);
+            dbHelper.currentUserId = args.getInt("USER_ID", -1);
         }
 
         initializeViews(view);
@@ -205,7 +205,7 @@ public class HomeFragment extends Fragment {
             todoPreviewAdapter.updateTasks(tasks);
         });
 
-        todoViewModel.loadTasks(dbHelper, currentUserId);
+        todoViewModel.loadTasks(dbHelper, dbHelper.currentUserId);
     }
 
     // -----------------------------
@@ -214,7 +214,7 @@ public class HomeFragment extends Fragment {
     private void setupAvatars() {
 
         List<AvatarGroup> avatarGroups =
-                dbHelper.getAvatarGroups(currentUserId);
+                dbHelper.getAvatarGroups(dbHelper.currentUserId);
 
         AvatarPagerAdapter adapter =
                 new AvatarPagerAdapter(avatarGroups);
@@ -235,7 +235,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void updateMood(int mood) {
-        dbHelper.updateUserMood(currentUserId, mood);
+        dbHelper.updateUserMood(dbHelper.currentUserId, mood);
         setupAvatars();
     }
 
@@ -255,7 +255,7 @@ public class HomeFragment extends Fragment {
         view.findViewById(R.id.cardTodo).setOnClickListener(v -> {
             Fragment productivityFragment = new ProductivityFragment();
             Bundle bundle = new Bundle();
-            bundle.putInt("USER_ID", currentUserId);
+            bundle.putInt("USER_ID",dbHelper.currentUserId);
             productivityFragment.setArguments(bundle);
 
             requireActivity().getSupportFragmentManager()

@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.betweenus.DatabaseHelper;
 import com.example.betweenus.R;
 import com.example.betweenus.model.Message;
 import com.example.betweenus.model.User;
@@ -22,12 +23,14 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private List<Message> messages;
     private Map<Integer, User> userMap;
-    private int currentUserId;
+//    private int currentUserId;
+    DatabaseHelper dbHelper = new DatabaseHelper(null);
+
 
     public MessageAdapter(List<Message> messages, Map<Integer, User> userMap, int currentUserId) {
         this.messages = messages;
         this.userMap = userMap;
-        this.currentUserId = currentUserId;
+        dbHelper.currentUserId = currentUserId;
     }
 
     public void updateMessages(List<Message> newMessages, Map<Integer, User> newUserMap) {
@@ -39,7 +42,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public int getItemViewType(int position) {
         Message message = messages.get(position);
-        if (message.getSenderID() == currentUserId) {
+        if (message.getSenderID() == dbHelper.currentUserId) {
             return VIEW_TYPE_SENT;
         } else {
             return VIEW_TYPE_RECEIVED;

@@ -1,221 +1,181 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/white">
+    android:layout_height="match_parent">
 
-    <!-- Top Toolbar -->
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/profileToolbar"
+    <ImageView
+        android:id="@+id/bgImage"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:title="Profile"
-        android:background="?attr/colorPrimary"
-        android:titleTextColor="@android:color/white"
-        app:menu="@menu/profile_menu"
+        android:layout_height="0dp"
+        android:src="@drawable/bg"
+        android:scaleType="centerCrop"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- Top Toolbar -->
+    <TextView
+        android:id="@+id/profileToolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#3290c8"
+        android:elevation="6dp"
+        android:gravity="center"
+        android:paddingTop="16dp"
+        android:paddingBottom="12dp"
+        android:text="Profile"
+        android:textColor="@color/white"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageButton
-        android:id="@+id/btn_shop"
-        android:layout_width="35dp"
+        android:id="@+id/btn_settings"
+        android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_margin="12dp"
         android:background="@android:color/transparent"
         android:elevation="7dp"
-        android:scaleType="fitCenter"
-        android:src="@drawable/shop_btn"
-        app:layout_constraintStart_toStartOf="parent"
+        android:src="@drawable/settings_btn"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:tint="#FFD166" />
-    <!-- Profile Picture -->
-    <ImageView
-        android:id="@+id/profileImage"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_marginTop="24dp"
-        android:src="@drawable/profilebtn_filled"
-        android:scaleType="centerCrop"
+        app:tint="@color/white" />
+
+
+    <LinearLayout
+        android:id="@+id/profileSection"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@id/profileToolbar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Username -->
+        <!-- Top Row (Image + Info) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- Avatar -->
+            <ImageView
+                android:id="@+id/profileImage"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:background="@drawable/circle_image_background"
+                android:padding="6dp"
+                android:src="@drawable/profilebtn_filled"
+                 />
+
+            <!-- Right Side Info -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/profileUsername"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Username"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/profileBio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_gravity="center"
+                    android:text="your bio here "
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Friends Row -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:layout_gravity="center">
+
+            <TextView
+                android:id="@+id/friendsCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4 Friends"
+                android:textColor="#3290c8"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:clickable="true"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="  ☻  "
+                android:textColor="#3290c8"
+                android:textSize="25sp"/>
+
+            <TextView
+                android:id="@+id/addFriendLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Friend"
+                android:textColor="#3290c8"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:clickable="true"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Schedule Card -->
+<androidx.cardview.widget.CardView
+android:id="@+id/scheduleCard"
+android:layout_height="0dp"
+android:layout_margin="16dp"
+android:layout_width="0dp"
+app:cardCornerRadius="20dp"
+app:cardElevation="6dp"
+app:layout_constraintBottom_toBottomOf="parent"
+app:layout_constraintEnd_toEndOf="parent"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintTop_toBottomOf="@id/profileSection">
+
+<LinearLayout
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp">
+
     <TextView
-        android:id="@+id/profileUsername"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Alex"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@id/profileImage"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:text="Schedule"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
-    <!--harcode user email-->
-    <TextView
-        android:id="@+id/profileEmail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="alex@betweenus.com"
-        android:textSize="12sp"
-        android:textColor="@android:color/black"
-        android:layout_marginTop="2dp"
-        app:layout_constraintTop_toBottomOf="@id/profileUsername"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+    <!-- Google Calendar Container -->
+    <FrameLayout
+        android:background="@drawable/image_round"
+        android:backgroundTint="#F0F1F6"
+        android:elevation="6dp"
+        android:id="@+id/googleCalendarContainer"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:padding="12dp" />
 
-    <!-- Bio -->
-    <TextView
-        android:id="@+id/profileBio"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Loves journaling"
-        android:layout_margin="20dp"
-        android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/profileEmail"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+</LinearLayout>
+</androidx.cardview.widget.CardView>
 
-    <!-- Friends Button -->
-    <Button
-        android:id="@+id/viewFriendsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="View Friends"
-        app:layout_constraintTop_toBottomOf="@id/profileBio"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Add Friend button -->
-    <EditText
-        android:id="@+id/addFriendInput"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Enter friend's name or ID"
-        android:padding="12dp"
-        android:background="@android:drawable/edit_text"
-        app:layout_constraintTop_toBottomOf="@id/viewFriendsButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/addFriendButton"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="12dp"/>
-
-    <Button
-        android:id="@+id/addFriendButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add Friend"
-        app:layout_constraintTop_toTopOf="@id/addFriendInput"
-        app:layout_constraintBottom_toBottomOf="@id/addFriendInput"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="16dp"/>
-
-    <!-- Friends RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_friends"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_margin="16dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/addFriendInput"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-
-    <!-- Schedule Title -->
-    <TextView
-        android:id="@+id/scheduleTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Daily Schedule"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@id/recycler_view_friends"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="16dp"/>
-
-    <!-- Schedule RecyclerView
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/scheduleRecyclerView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_margin="12dp"
-        app:layout_constraintTop_toBottomOf="@id/scheduleTitle"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/> -->
-
-    <!--harcode schedule-->
-<!--    <LinearLayout-->
-<!--        android:id="@+id/scheduleContainer"-->
-<!--        android:orientation="vertical"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginStart="16dp"-->
-<!--        android:layout_marginEnd="16dp"-->
-<!--        android:layout_marginTop="8dp"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/scheduleTitle"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent">-->
-
-<!--        <TextView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Monday: 9:00 AM - 5:00 PM"-->
-<!--            android:padding="4dp"/>-->
-
-<!--        <TextView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Tuesday: 9:00 AM - 5:00 PM"-->
-<!--            android:padding="4dp"/>-->
-
-<!--        <TextView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Wednesday: 9:00 AM - 5:00 PM"-->
-<!--            android:padding="4dp"/>-->
-
-<!--        <TextView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Thursday: 9:00 AM - 5:00 PM"-->
-<!--            android:padding="4dp"/>-->
-
-<!--        <TextView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Friday: 9:00 AM - 5:00 PM"-->
-<!--            android:padding="4dp"/>-->
-<!--    </LinearLayout>-->
-
-    <!-- hardcode other information-->
-<!--    <TextView-->
-<!--        android:id="@+id/profilePoints"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Points: 100"-->
-<!--        android:layout_marginTop="8dp"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/profileBio"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        android:layout_marginStart="16dp"/>-->
-
-<!--    <TextView-->
-<!--        android:id="@+id/profileMood"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Mood: Happy"-->
-<!--        android:layout_marginTop="8dp"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/profileBio"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        android:layout_marginEnd="16dp"/>-->
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
