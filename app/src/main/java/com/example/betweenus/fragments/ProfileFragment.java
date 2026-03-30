@@ -1,39 +1,27 @@
 package com.example.betweenus.fragments;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.betweenus.DatabaseHelper;
 import com.example.betweenus.R;
 import com.example.betweenus.activities.ProfileDetailActivity;
-import com.example.betweenus.adapter.FriendAdapter;
-import com.example.betweenus.model.Friend;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import com.example.betweenus.adapter.ChatListAdapter;
+import com.google.android.material.imageview.ShapeableImageView;
 
 public class ProfileFragment extends Fragment {
 
     private TextView friendsCount, addFriendLink, username, bio;
-    private ImageView pfp; // ✅ FIXED
+    private ShapeableImageView pfp;
     private DatabaseHelper dbHelper;
-//    private int currentUserID = 15; // Hardcoded for now until we get login set-up
-//    private boolean friendsVisible = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -49,7 +37,6 @@ public class ProfileFragment extends Fragment {
         addFriendLink = view.findViewById(R.id.addFriendLink);
 
         loadUserData();
-
 
         friendsCount.setOnClickListener(v -> {
             startActivity(new Intent(getActivity(), ProfileDetailActivity.class));
@@ -83,12 +70,12 @@ public class ProfileFragment extends Fragment {
                     cursor.getColumnIndexOrThrow("FriendNumber")
             );
 
-            // ✅ SET DATA
+            // SET DATA
             username.setText(userName);
             bio.setText(userBio);
             friendsCount.setText(friendNum + " Friends");
 
-            // ✅ SET PROFILE IMAGE
+            // SET PROFILE IMAGE
             setProfileImage(avatarId);
 
             cursor.close();
@@ -116,7 +103,9 @@ public class ProfileFragment extends Fragment {
         }
 
         pfp.setImageResource(imageRes);
+
+        // SET BORDER COLOR BASED ON AVATAR
+        int borderColor = ChatListAdapter.getBoarder(avatarId);
+        pfp.setStrokeColor(ColorStateList.valueOf(borderColor));
     }
-
-
 }

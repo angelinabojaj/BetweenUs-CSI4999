@@ -24,7 +24,7 @@ public class ChatListFragment extends Fragment {
     private RecyclerView chatListRecyclerView;
     private ChatListAdapter chatListAdapter;
     private DatabaseHelper dbHelper;
-    private int currentUserId = 1; // For demo, should be retrieved from session
+//    private int currentUserId = 1; // For demo, should be retrieved from session
 
     @Nullable
     @Override
@@ -46,9 +46,9 @@ public class ChatListFragment extends Fragment {
     private void loadChats() {
         // For simplicity, we'll list all friends as potential chats.
         // In a real app, you'd show users with existing message history.
-        List<User> users = dbHelper.getUserAndFriends(currentUserId);
+        List<User> users = dbHelper.getUserAndFriends(dbHelper.currentUserId);
         // Remove current user from the list
-        users.removeIf(user -> user.getUserId() == currentUserId);
+        users.removeIf(user -> user.getUserId() == dbHelper.currentUserId);
 
         chatListAdapter = new ChatListAdapter(users, user -> {
             Bundle bundle = new Bundle();
@@ -57,5 +57,40 @@ public class ChatListFragment extends Fragment {
             Navigation.findNavController(requireView()).navigate(R.id.action_navigation_chat_list_to_messagingFragment, bundle);
         });
         chatListRecyclerView.setAdapter(chatListAdapter);
+    }
+
+
+    public static int getAvatarImage(int avatarId) {
+        switch (avatarId) {
+            case 1:
+                return R.drawable.bunny_profile;
+            case 2:
+                return R.drawable.giraffe_profile;
+            case 3:
+                return R.drawable.kitty_profile;
+            case 4:
+                return R.drawable.puppy_profile;
+            default:
+                return R.drawable.profilebtn_filled;
+        }
+    }
+
+    public static int getMessageColor(int avatarId, boolean isSender) {
+        switch (avatarId) {
+            case 1: // bunny → pink
+                return isSender ? 0xFFF8A5C2 : 0xFFFADADD;
+
+            case 2: // giraffe → yellow
+                return isSender ? 0xFFFDCB6E : 0xFFFFF3D6;
+
+            case 3: // kitty → blue
+                return isSender ? 0xFF74B9FF : 0xFFD6E9FF;
+
+            case 4: // puppy → green
+                return isSender ? 0xFF55EFC4 : 0xFFDFFFEF;
+
+            default:
+                return 0xFFE0E0E0;
+        }
     }
 }

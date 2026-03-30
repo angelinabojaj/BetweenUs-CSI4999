@@ -98,10 +98,16 @@ public class MessagingFragment extends Fragment {
 
     private void setupHeader() {
         Cursor cursor = dbHelper.getUserByID(receiverId);
+
         if (cursor != null && cursor.moveToFirst()) {
             String name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NAME));
+            int avatarId = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_AVATAR)); // 👈 IMPORTANT
+
             groupName.setText(name);
-            // Optionally set avatar if you have a way to map the int to a resource
+
+            // 🐰 set avatar using utility
+            groupImage.setImageResource(ChatListFragment.getAvatarImage(avatarId));
+
             cursor.close();
         }
     }

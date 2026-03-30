@@ -4,10 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="start"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:padding="4dp">
 
+    <ImageView
+        android:id="@+id/imageAvatar"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="bottom"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/profilebtn_filled" />
+
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="64dp"

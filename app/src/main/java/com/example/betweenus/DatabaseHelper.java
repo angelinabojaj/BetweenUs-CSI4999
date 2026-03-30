@@ -29,7 +29,7 @@ import java.util.Random;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    public int currentUserId = 1;
+    public int currentUserId = 8;
     private static final String DATABASE_NAME = "BetweenUs.db";
     public static final int DATABASE_VERSION = 5; // increase this
     //private static String DB_PATH = "/data/data/BetweenUs/databases/";
@@ -43,7 +43,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL_PHONE = "UserPhone";
     private static final String COL_BIO = "UserBio";
     private static final String COL_Premium = "IsPremium";
-    private static final String COL_AVATAR = "Avatar";
+    public static final String COL_AVATAR = "Avatar";
     private static final String COL_MOOD = "CurrentMood";
     private static final String COL_FRIEND_COUNT = "FriendsNumber";
     private static final String COL_POINTS = "Points";

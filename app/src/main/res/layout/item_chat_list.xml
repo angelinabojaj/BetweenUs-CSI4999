@@ -5,14 +5,20 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="12dp"
-    android:background="?attr/selectableItemBackground"
+    android:layout_marginHorizontal="10dp"
+    android:layout_marginTop="15dp"
+    android:background="@drawable/image_round"
+    android:backgroundTint="#E6E8F3FF"
     android:gravity="center_vertical">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/profileImage"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:src="@drawable/ic_profile_placeholder"
+        android:layout_width="66dp"
+        android:layout_height="66dp"
+        android:padding="2dp"
+        android:src="@drawable/profilebtn_filled"
+        app:strokeColor="#2196F3"
+        app:strokeWidth="4dp"
         app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full" />
 
     <LinearLayout
