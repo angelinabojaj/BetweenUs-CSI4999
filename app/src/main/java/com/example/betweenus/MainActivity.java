@@ -178,6 +178,10 @@ public class MainActivity extends AppCompatActivity {
         myDBHelper.markTaskComplete(taskID);
     }
 
+    public boolean updateTaskDueDate(int taskID, String newDueDate){ return myDBHelper.updateTaskDueDate(taskID, newDueDate);}
+
+    public boolean updateTaskGoal(int taskID, String newGoal){ return myDBHelper.updateTaskGoal(taskID, newGoal);}
+
     public String getUserSchedule(int userID) {
         return myDBHelper.getUserSchedule(userID);
     }

@@ -299,6 +299,52 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return new Task(taskID, taskCreator, goal, dueDate, false);
     }
 
+    public boolean updateTaskDueDate(int taskID, String newDueDate) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COL_DUE_DATE, newDueDate);
+
+        int result = db.update(
+                TABLE_TASKS,
+                values,
+                COL_TASK_ID + " = ?",
+                new String[]{String.valueOf(taskID)}
+        );
+
+        if (result == 0) {
+            System.out.println("Update Due Date Failed");
+            return false;
+        } else {
+            System.out.println("Update Due Date Successful");
+            return true;
+        }
+    }
+
+    public boolean updateTaskGoal(int taskID, String newGoal) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COL_TASK_GOAL, newGoal);
+
+        int result = db.update(
+                TABLE_TASKS,
+                values,
+                COL_TASK_ID + " = ?",
+                new String[]{String.valueOf(taskID)}
+        );
+
+        if (result == 0) {
+            System.out.println("Update Goal Failed");
+            return false;
+        } else {
+            System.out.println("Update Goal Successful");
+            return true;
+        }
+    }
+
+
+
 
 
 
