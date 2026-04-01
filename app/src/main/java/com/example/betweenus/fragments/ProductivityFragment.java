@@ -89,14 +89,16 @@ public class ProductivityFragment extends Fragment {
         taskAdapter = new TaskAdapter(taskList, new TaskAdapter.OnTaskActionListener() {
             @Override
             public void onTaskDelete(Task task) {
-                dbHelper.markTaskComplete(task.getTaskId()); // Using existing markTaskComplete as delete/complete for now
+                dbHelper.deleteTask(task.getTaskId());
                 loadTasks();
+                Toast.makeText(getContext(), "Task deleted", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onTaskComplete(Task task) {
                 dbHelper.markTaskComplete(task.getTaskId());
                 loadTasks();
+                Toast.makeText(getContext(), "Task completed", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -138,7 +140,10 @@ public class ProductivityFragment extends Fragment {
                 String date = cursor.getString(cursor.getColumnIndexOrThrow("DueDate"));
                 int complete = cursor.getInt(cursor.getColumnIndexOrThrow("IsComplete"));
 
-                taskList.add(new Task(id, makerId, goal, date, complete == 1));
+                // If you want completed tasks to disappear from the list:
+                if (complete == 0) {
+                    taskList.add(new Task(id, makerId, goal, date, false));
+                }
             } while (cursor.moveToNext());
             cursor.close();
         }

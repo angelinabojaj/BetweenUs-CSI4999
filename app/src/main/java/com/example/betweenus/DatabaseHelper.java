@@ -601,6 +601,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(updateQuery, new Object[]{taskID});
     }
 
+    public void deleteTask(int taskID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_TASKS + " WHERE " + COL_TASK_ID + " = ?", new Object[]{taskID});
+    }
+
     //generic update profile function
     public void updateColumnValue(String columnToUpdate,
                                   Object newValue,
