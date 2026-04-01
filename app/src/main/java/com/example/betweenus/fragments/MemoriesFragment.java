@@ -4,6 +4,7 @@ package com.example.betweenus.fragments;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.betweenus.activities.CreateMemoryActivity;
 import com.example.betweenus.DatabaseHelper;
 import com.example.betweenus.R;
+import com.example.betweenus.activities.MemoriesDetailActivity;
 import com.example.betweenus.adapter.MemoriesAdapter;
 import com.example.betweenus.model.MemoriesItem;
 
@@ -66,12 +68,23 @@ public class MemoriesFragment extends Fragment {
             do {
                 int memoryID = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_MEMORY_ID));
                 int posterID = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_POSTER_ID));
+                int posterAvatar = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_AVATAR));
+                String posterName = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NAME));
                 String memoryTitle = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_MEMORY_TITLE));
                 String memoryBody = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_MEMORY_BODY));
                 String mediaURL = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_MEDIA_URL));
-                String timeStamp = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_TIME_STAMP));
                 int likes = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_LIKES));
-                memoriesItems.add(new MemoriesItem(memoryID, posterID, memoryTitle, memoryBody, mediaURL, timeStamp, likes));
+                String timestampStr = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_TIME_STAMP));
+
+                long timestampMillis = MemoriesDetailActivity.parseTimestamp(timestampStr);
+
+                String timeAgo;
+                if (timestampMillis > 0) {
+                    timeAgo = DateUtils.getRelativeTimeSpanString(timestampMillis, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString();
+                } else {
+                    timeAgo = "Unknown";
+                }
+                memoriesItems.add(new MemoriesItem(memoryID, posterID,posterAvatar, posterName, memoryTitle, memoryBody, mediaURL, timeAgo, likes));
 
             } while (cursor.moveToNext());
         }

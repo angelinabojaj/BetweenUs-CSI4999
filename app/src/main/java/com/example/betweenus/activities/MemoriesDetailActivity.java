@@ -2,7 +2,10 @@ package com.example.betweenus.activities;
 
 import android.app.AlertDialog;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -17,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -25,8 +29,12 @@ import com.example.betweenus.R;
 import com.example.betweenus.adapter.CommentAdapter;
 import com.example.betweenus.model.Comment;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class MemoriesDetailActivity extends AppCompatActivity {
     ImageView memoryImage;
@@ -56,12 +64,14 @@ public class MemoriesDetailActivity extends AppCompatActivity {
         backBtn = findViewById(R.id.btn_back);
         backBtn.setOnClickListener(v -> finish());
 
+        // Initialize RecyclerView with a LayoutManager
+        commentsRecycler.setLayoutManager(new LinearLayoutManager(this));
+
         dbHelper = new DatabaseHelper(this);
 
         memoryID = getIntent().getIntExtra("MEMORY_ID", -1);
 
         Cursor memoryCursor = dbHelper.getMemoryByID(memoryID);
-        dbHelper.getPostComments(memoryID);
 
         if (memoryCursor != null && memoryCursor.moveToFirst()) {
             String title = memoryCursor.getString(memoryCursor.getColumnIndexOrThrow(DatabaseHelper.COL_MEMORY_TITLE));
@@ -75,7 +85,7 @@ public class MemoriesDetailActivity extends AppCompatActivity {
                 String assetPath = "file:///android_asset/memories/" + imageUrl;
 
                 Glide.with(this)
-                        .load(assetPath)
+                        .load(Uri.parse(assetPath))
                         .placeholder(R.drawable.memorybtn_filled)
                         .into(memoryImage);
 
@@ -111,7 +121,6 @@ public class MemoriesDetailActivity extends AppCompatActivity {
                 loadComments(); // refresh list
             }
         });
-
 
 
         settingsButton.setOnClickListener(v1 -> showSettingsMenu());
@@ -190,10 +199,23 @@ public class MemoriesDetailActivity extends AppCompatActivity {
         if (cursor != null) {
             while (cursor.moveToNext()) {
 
-                int id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_COMMENT_ID));;
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_COMMENT_ID));
+                int posterId = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_COMMENTOR_ID));
+                int avatar = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_AVATAR));
                 String text = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_COMMENT_BODY));
+                String userName = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_NAME));
+                String timestampStr = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_COMMENT_TIME_STAMP));
 
-                commentList.add(new Comment(id,1, memoryID, text, "2h ago"));
+                long timestampMillis = parseTimestamp(timestampStr);
+
+                String timeAgo;
+                if (timestampMillis > 0) {
+                    timeAgo = DateUtils.getRelativeTimeSpanString(timestampMillis, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString();
+                } else {
+                    timeAgo = "Unknown";
+                }
+
+                commentList.add(new Comment(id, posterId, userName, avatar, memoryID, text, timeAgo));
             }
             cursor.close();
         }
@@ -201,7 +223,23 @@ public class MemoriesDetailActivity extends AppCompatActivity {
         commentAdapter = new CommentAdapter(commentList);
         commentsRecycler.setAdapter(commentAdapter);
     }
+
+    public static long parseTimestamp(String timestampStr) {
+        if (timestampStr == null) return 0;
+
+        // Try to parse as milliseconds first (for new comments)
+        try {
+            return Long.parseLong(timestampStr);
+        } catch (NumberFormatException e) {
+            // Not a number, try to parse as date string (for preexisting comments)
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            try {
+                Date date = sdf.parse(timestampStr);
+                return date != null ? date.getTime() : 0;
+            } catch (ParseException ex) {
+                Log.e("TimestampParse", "Failed to parse date string: " + timestampStr);
+                return 0;
+            }
+        }
+    }
 }
-
-
-

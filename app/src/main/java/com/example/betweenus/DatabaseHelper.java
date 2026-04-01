@@ -265,6 +265,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_DUE_DATE, dueDate);
         return db.insert(TABLE_TASKS, null, values);
     }
+
     public Task createTask2(Integer taskCreator, String goal, Integer isPrivate, String dueDate) {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -276,10 +277,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         long result = db.insert(TABLE_TASKS, null, values);
 
-        if(result == -1){
+        if (result == -1) {
             System.out.println("Insertion Failed");
-        }
-        else{
+        } else {
             System.out.println("Insertion successful");
         }
 
@@ -344,10 +344,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-
-
-
-
     //Get Tasks For User
     public Cursor getUserTasks(String query) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -410,7 +406,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.query(TABLE_USERS, null, COL_NAME + "=?", new String[]{userName}, null, null, null);
     }
-
 
 
     //returns int for userID
@@ -763,8 +758,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String query =
-                "SELECT * FROM " + TABLE_MEMORIES +
-                        " ORDER BY " + COL_TIME_STAMP + " DESC";
+                "SELECT m.*, u." + COL_NAME + ", u." + COL_AVATAR +
+                        " FROM " + TABLE_MEMORIES + " m" +
+                        " JOIN " + TABLE_USERS + " u ON m." + COL_POSTER_ID + " = u." + COL_USER_ID +
+                        " ORDER BY m." + COL_TIME_STAMP + " DESC";
 
         Cursor cursor = db.rawQuery(query, null);
 
@@ -772,6 +769,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             int memoryIdIndex = cursor.getColumnIndexOrThrow(COL_MEMORY_ID);
             int posterIdIndex = cursor.getColumnIndexOrThrow(COL_POSTER_ID);
+            int posterAvatarIndex = cursor.getColumnIndexOrThrow(COL_AVATAR);
+            int usernameIndex = cursor.getColumnIndexOrThrow(COL_NAME);
             int titleIndex = cursor.getColumnIndexOrThrow(COL_MEMORY_TITLE);
             int bodyIndex = cursor.getColumnIndexOrThrow(COL_MEMORY_BODY);
             int mediaTypeIndex = cursor.getColumnIndexOrThrow(COL_MEDIA_TYPE);
@@ -780,107 +779,97 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int likesIndex = cursor.getColumnIndexOrThrow(COL_LIKES);
 
             while (cursor.moveToNext()) {
-
-                int memoryID = cursor.getInt(memoryIdIndex);
-                int posterID = cursor.getInt(posterIdIndex);
-                String memoryTitle = cursor.getString(titleIndex);
-                String memoryBody = cursor.getString(bodyIndex);
-                String mediaType = cursor.getString(mediaTypeIndex);
-                String mediaURL = cursor.getString(mediaUrlIndex);
-                String timeStamp = cursor.getString(timeStampIndex);
-                int likes = cursor.getInt(likesIndex);
-
                 MemoriesItem memory = new MemoriesItem(
-                        memoryID,
-                        posterID,
-                        memoryTitle,
-                        memoryBody,
-                        mediaURL,
-                        timeStamp,
-                        likes
+                        cursor.getInt(memoryIdIndex),
+                        cursor.getInt(posterIdIndex),
+                        cursor.getInt(posterAvatarIndex),
+                        cursor.getString(usernameIndex), // Pass username here
+                        cursor.getString(titleIndex),
+                        cursor.getString(bodyIndex),
+                        cursor.getString(mediaUrlIndex),
+                        cursor.getString(timeStampIndex),
+                        cursor.getInt(likesIndex)
                 );
-
                 list.add(memory);
             }
-
             cursor.close();
         }
-
         return list;
     }
 
-    public List<MemoriesItem> getFriendMemories(Integer userId) {
-
-        List<MemoriesItem> memoryList = new ArrayList<>();
-        List<Integer> friendIds = getFriendUserIds(userId);
-
-        if (friendIds.isEmpty()) {
-            return memoryList; // No friends → no memories
-        }
-
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        // Build placeholders (?, ?, ?, ...)
-        StringBuilder placeholders = new StringBuilder();
-        for (int i = 0; i < friendIds.size(); i++) {
-            placeholders.append("?");
-            if (i < friendIds.size() - 1) {
-                placeholders.append(",");
-            }
-        }
-
-        String queryStr = "SELECT * FROM " + TABLE_MEMORIES +
-                " WHERE " + COL_POSTER_ID + " IN (" + placeholders.toString() + ")" +
-                " ORDER BY " + COL_TIME_STAMP + " DESC";
-
-        // Convert Integer list to String array for query args
-        String[] args = new String[friendIds.size()];
-        for (int i = 0; i < friendIds.size(); i++) {
-            args[i] = String.valueOf(friendIds.get(i));
-        }
-
-        Cursor cursor = db.rawQuery(queryStr, args);
-
-        if (cursor != null) {
-
-            int memoryIdIndex = cursor.getColumnIndexOrThrow(COL_MEMORY_ID);
-            int posterIdIndex = cursor.getColumnIndexOrThrow(COL_POSTER_ID);
-            int titleIndex = cursor.getColumnIndexOrThrow(COL_MEMORY_TITLE);
-            int bodyIndex = cursor.getColumnIndexOrThrow(COL_MEMORY_BODY);
-            int mediaTypeIndex = cursor.getColumnIndexOrThrow(COL_MEDIA_TYPE);
-            int mediaUrlIndex = cursor.getColumnIndexOrThrow(COL_MEDIA_URL);
-            int timeStampIndex = cursor.getColumnIndexOrThrow(COL_TIME_STAMP);
-            int likesIndex = cursor.getColumnIndexOrThrow(COL_LIKES);
-
-            while (cursor.moveToNext()) {
-
-                int memoryID = cursor.getInt(memoryIdIndex);
-                int posterID = cursor.getInt(posterIdIndex);
-                String memoryTitle = cursor.getString(titleIndex);
-                String memoryBody = cursor.getString(bodyIndex);
-                String mediaType = cursor.getString(mediaTypeIndex);
-                String mediaURL = cursor.getString(mediaUrlIndex);
-                String timeStamp = cursor.getString(timeStampIndex);
-                int likes = cursor.getInt(likesIndex);
-
-                MemoriesItem memory = new MemoriesItem(
-                        memoryID,
-                        posterID,
-                        memoryTitle,
-                        memoryBody,
-                        mediaURL,
-                        timeStamp,
-                        likes
-                );
-
-                memoryList.add(memory);
-            }
-
-            cursor.close();
-        }
-
-        return memoryList;
-    }
+//    public List<MemoriesItem> getFriendMemories(Integer userId) {
+//
+//        List<MemoriesItem> memoryList = new ArrayList<>();
+//        List<Integer> friendIds = getFriendUserIds(userId);
+//
+//        if (friendIds.isEmpty()) {
+//            return memoryList; // No friends → no memories
+//        }
+//
+//        SQLiteDatabase db = this.getReadableDatabase();
+//
+//        // Build placeholders (?, ?, ?, ...)
+//        StringBuilder placeholders = new StringBuilder();
+//        for (int i = 0; i < friendIds.size(); i++) {
+//            placeholders.append("?");
+//            if (i < friendIds.size() - 1) {
+//                placeholders.append(",");
+//            }
+//        }
+//
+//        String queryStr = "SELECT * FROM " + TABLE_MEMORIES +
+//                " WHERE " + COL_POSTER_ID + " IN (" + placeholders.toString() + ")" +
+//                " ORDER BY " + COL_TIME_STAMP + " DESC";
+//
+//        // Convert Integer list to String array for query args
+//        String[] args = new String[friendIds.size()];
+//        for (int i = 0; i < friendIds.size(); i++) {
+//            args[i] = String.valueOf(friendIds.get(i));
+//        }
+//
+//        Cursor cursor = db.rawQuery(queryStr, args);
+//
+//        if (cursor != null) {
+//
+//            int memoryIdIndex = cursor.getColumnIndexOrThrow(COL_MEMORY_ID);
+//            int posterIdIndex = cursor.getColumnIndexOrThrow(COL_POSTER_ID);
+//            int titleIndex = cursor.getColumnIndexOrThrow(COL_MEMORY_TITLE);
+//            int bodyIndex = cursor.getColumnIndexOrThrow(COL_MEMORY_BODY);
+//            int mediaTypeIndex = cursor.getColumnIndexOrThrow(COL_MEDIA_TYPE);
+//            int mediaUrlIndex = cursor.getColumnIndexOrThrow(COL_MEDIA_URL);
+//            int timeStampIndex = cursor.getColumnIndexOrThrow(COL_TIME_STAMP);
+//            int likesIndex = cursor.getColumnIndexOrThrow(COL_LIKES);
+//
+//            while (cursor.moveToNext()) {
+//
+//                int memoryID = cursor.getInt(memoryIdIndex);
+//                int posterID = cursor.getInt(posterIdIndex);
+//                String memoryTitle = cursor.getString(titleIndex);
+//                String memoryBody = cursor.getString(bodyIndex);
+//                String mediaType = cursor.getString(mediaTypeIndex);
+//                String mediaURL = cursor.getString(mediaUrlIndex);
+//                String timeStamp = cursor.getString(timeStampIndex);
+//                int likes = cursor.getInt(likesIndex);
+//
+//                MemoriesItem memory = new MemoriesItem(
+//                        memoryID,
+//                        posterID,
+//
+//                        memoryTitle,
+//                        memoryBody,
+//                        mediaURL,
+//                        timeStamp,
+//                        likes
+//                );
+//
+//                memoryList.add(memory);
+//            }
+//
+//            cursor.close();
+//        }
+//
+//        return memoryList;
+//    }
 
     public void updateMemoryLikes(int memoryID, int newLikes) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -895,9 +884,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Cursor getPostComments(Integer postID) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String searchQuery = "SELECT " + "*" +
-                " FROM " + TABLE_COMMENTS +
-                " WHERE " + COL_COMMENT_MEMORY_ID + " = ?";
+        String searchQuery = "SELECT c.*, u." + COL_NAME + ", u." + COL_AVATAR +
+                " FROM " + TABLE_COMMENTS + " AS c" +
+                " JOIN " + TABLE_USERS + " AS u ON c." + COL_COMMENTOR_ID + " = u." + COL_USER_ID +
+                " WHERE c." + COL_COMMENT_MEMORY_ID + " = ?";
 
         return db.rawQuery(searchQuery,
                 new String[]{String.valueOf(postID)});
@@ -910,9 +900,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String queryStr =
-                "SELECT * FROM " + TABLE_COMMENTS +
-                        " WHERE " + COL_COMMENT_MEMORY_ID + " = ?" +
-                        " ORDER BY " + COL_COMMENT_TIME_STAMP;
+                "SELECT c.*, u." + COL_NAME + ", u." + COL_AVATAR +
+                        " FROM " + TABLE_COMMENTS + " AS c" +
+                        " JOIN " + TABLE_USERS + " AS u" +
+                        " ON c." + COL_COMMENTOR_ID + " = u." + COL_USER_ID +
+                        " WHERE c." + COL_COMMENT_MEMORY_ID + " = ?" +
+                        " ORDER BY c." + COL_COMMENT_TIME_STAMP + " ASC";
 
         Cursor cursor = db.rawQuery(
                 queryStr,
@@ -923,6 +916,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             int commentIdIndex = cursor.getColumnIndexOrThrow(COL_COMMENT_ID);
             int posterIdIndex = cursor.getColumnIndexOrThrow(COL_POSTER_ID);
+            int posterNameIndex = cursor.getColumnIndexOrThrow(COL_NAME);
+            int posterAvatarIndex = cursor.getColumnIndexOrThrow(COL_AVATAR);
             int memoryIdIndex = cursor.getColumnIndexOrThrow(COL_MEMORY_ID);
             int bodyIndex = cursor.getColumnIndexOrThrow(COL_COMMENT_BODY);
             int timeIndex = cursor.getColumnIndexOrThrow(COL_COMMENT_TIME_STAMP);
@@ -931,6 +926,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
                 int commentId = cursor.getInt(commentIdIndex);
                 int posterId = cursor.getInt(posterIdIndex);
+                String posterName = cursor.getString(posterNameIndex);
+                int avatar = cursor.getInt(posterAvatarIndex);
                 int memId = cursor.getInt(memoryIdIndex);
                 String body = cursor.getString(bodyIndex);
                 String timestamp = cursor.getString(timeIndex);
@@ -938,6 +935,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 Comment comment = new Comment(
                         commentId,
                         posterId,
+                        posterName,
+                        avatar,
                         memId,
                         body,
                         timestamp
@@ -1322,6 +1321,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return list;
     }
+
     public List<String> getDueTasks(int UserID) {
         List<String> dueTasks = new ArrayList<>();
 
@@ -1363,14 +1363,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return randomTask;
     }
+
     //takes userID and returns ArrayList of integers corresponding to the user's owned avatars
     public ArrayList<Integer> getUserAvatars(int UserID) {
-        ArrayList<Integer> ownedAvatars= new ArrayList<Integer>();
+        ArrayList<Integer> ownedAvatars = new ArrayList<Integer>();
         SQLiteDatabase db = this.getReadableDatabase();
-        String query =  "SELECT " + COL_AVATAR_OWNED + " FROM " + TABLE_AVATAR_OWNERSHIP +
+        String query = "SELECT " + COL_AVATAR_OWNED + " FROM " + TABLE_AVATAR_OWNERSHIP +
                 " WHERE " + COL_USER_ID + " = ?";
 
-        Cursor cursor = db.rawQuery(query, new String[]{ String.valueOf(UserID) });
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(UserID)});
 
 
         if (cursor.moveToFirst()) {
@@ -1410,7 +1411,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result != -1;
     }
 
-//User premium status
+    //User premium status
     public static boolean isUserPremium(DatabaseHelper db, int userId) {
 
         SQLiteDatabase database = db.getReadableDatabase();
@@ -1540,41 +1541,61 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             case 1: // bunny
                 switch (mood) {
-                    case 0: return R.drawable.bunny_happy;
-                    case 1: return R.drawable.bunny_sad;
-                    case 2: return R.drawable.bunny_excited;
-                    case 3: return R.drawable.bunny_neutral;
-                    case 4: return R.drawable.bunny_angry;
+                    case 0:
+                        return R.drawable.bunny_happy;
+                    case 1:
+                        return R.drawable.bunny_sad;
+                    case 2:
+                        return R.drawable.bunny_excited;
+                    case 3:
+                        return R.drawable.bunny_neutral;
+                    case 4:
+                        return R.drawable.bunny_angry;
                 }
                 break;
             case 2: // giraffe
                 switch (mood) {
-                    case 0: return R.drawable.giraffe_happy;
-                    case 1: return R.drawable.giraffe_sad;
-                    case 2: return R.drawable.giraffe_excited;
-                    case 3: return R.drawable.giraffe_neutral;
-                    case 4: return R.drawable.giraffe_angry;
+                    case 0:
+                        return R.drawable.giraffe_happy;
+                    case 1:
+                        return R.drawable.giraffe_sad;
+                    case 2:
+                        return R.drawable.giraffe_excited;
+                    case 3:
+                        return R.drawable.giraffe_neutral;
+                    case 4:
+                        return R.drawable.giraffe_angry;
                 }
                 break;
 
             case 3: // kitty
                 switch (mood) {
-                    case 0: return R.drawable.kitty_happy;
-                    case 1: return R.drawable.kitty_sad;
-                    case 2: return R.drawable.kitty_excited;
-                    case 3: return R.drawable.kitty_neutral;
-                    case 4: return R.drawable.kitty_angry;
+                    case 0:
+                        return R.drawable.kitty_happy;
+                    case 1:
+                        return R.drawable.kitty_sad;
+                    case 2:
+                        return R.drawable.kitty_excited;
+                    case 3:
+                        return R.drawable.kitty_neutral;
+                    case 4:
+                        return R.drawable.kitty_angry;
                 }
                 break;
 
 
             case 4: // puppy
                 switch (mood) {
-                    case 0: return R.drawable.puppy_happy;
-                    case 1: return R.drawable.puppy_sad;
-                    case 2: return R.drawable.puppy_excited;
-                    case 3: return R.drawable.puppy_neutral;
-                    case 4: return R.drawable.puppy_angry;
+                    case 0:
+                        return R.drawable.puppy_happy;
+                    case 1:
+                        return R.drawable.puppy_sad;
+                    case 2:
+                        return R.drawable.puppy_excited;
+                    case 3:
+                        return R.drawable.puppy_neutral;
+                    case 4:
+                        return R.drawable.puppy_angry;
                 }
                 break;
         }
@@ -1619,12 +1640,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public ArrayList<Integer> getShopItemsOwned(int UserID) {
-        ArrayList<Integer> ownedShopItems= new ArrayList<Integer>();
+        ArrayList<Integer> ownedShopItems = new ArrayList<Integer>();
         SQLiteDatabase db = this.getReadableDatabase();
-        String query =  "SELECT " + COL_SHOP_ITEM_OWNED + " FROM " + TABLE_SHOP_ITEM_OWNERSHIP +
+        String query = "SELECT " + COL_SHOP_ITEM_OWNED + " FROM " + TABLE_SHOP_ITEM_OWNERSHIP +
                 " WHERE " + COL_USER_ID + " = ?";
 
-        Cursor cursor = db.rawQuery(query, new String[]{ String.valueOf(UserID) });
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(UserID)});
 
 
         if (cursor.moveToFirst()) {
@@ -1835,7 +1856,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return 0;
     }
 
-    public int getAverageStudyTime (int userId) {
+    public int getAverageStudyTime(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.rawQuery(
@@ -1865,9 +1886,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         return minutes;
     }
-
-
-
 
 
 // UPDATE USER STATUS

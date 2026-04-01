@@ -2,6 +2,7 @@ package com.example.betweenus.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import com.bumptech.glide.Glide;
 import com.example.betweenus.DatabaseHelper;
 import com.example.betweenus.activities.MemoriesDetailActivity;
 import com.example.betweenus.R;
+import com.example.betweenus.fragments.ChatListFragment;
 import com.example.betweenus.model.MemoriesItem;
 
 import java.util.List;
@@ -30,6 +32,7 @@ public class MemoriesAdapter extends RecyclerView.Adapter<MemoriesAdapter.ViewHo
         this.context = context;
         this.memoriesItems = memoriesItems;
         this.dbHelper = new DatabaseHelper(context);
+
     }
 
     @NonNull
@@ -40,11 +43,14 @@ public class MemoriesAdapter extends RecyclerView.Adapter<MemoriesAdapter.ViewHo
     }
 
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
         MemoriesItem memoriesItem = memoriesItems.get(position);
 
-        holder.tvUsername.setText(String.valueOf(memoriesItem.getPosterID()));
+        holder.profileImage.setImageResource(ChatListFragment.getAvatarImage(memoriesItem.getPosterAvatar()));
+        holder.tvTitle.setText(memoriesItem.getMemoryTitle());
+        holder.tvUsername.setText(memoriesItem.getPosterName());
         holder.tvBody.setText(memoriesItem.getMemoryBody());
-        holder.tvLikes.setText(String.valueOf(memoriesItem.getLikes()) + "❤");
+        holder.tvLikes.setText("❤ " + memoriesItem.getLikes());
         holder.tvDate.setText(memoriesItem.getTimeStamp());
 
         holder.itemView.setOnClickListener(v -> {
@@ -62,7 +68,7 @@ public class MemoriesAdapter extends RecyclerView.Adapter<MemoriesAdapter.ViewHo
             String assetPath = "file:///android_asset/memories/" + imagePath;
 
             Glide.with(holder.itemView.getContext())
-                    .load(assetPath)
+                    .load(Uri.parse(assetPath))
                     .placeholder(R.drawable.memorybtn_filled)
                     .into(holder.ivImage);
 
@@ -77,7 +83,7 @@ public class MemoriesAdapter extends RecyclerView.Adapter<MemoriesAdapter.ViewHo
             public void onClick(View v) {
                 int newLikes = memoriesItem.getLikes() + 1;
                 memoriesItem.setLikes(newLikes);
-                holder.tvLikes.setText(String.valueOf(newLikes) + "❤");
+                holder.tvLikes.setText("❤ " + newLikes);
 
                 dbHelper.updateMemoryLikes(memoriesItem.getMemoryID(), newLikes);
 
@@ -101,14 +107,16 @@ public class MemoriesAdapter extends RecyclerView.Adapter<MemoriesAdapter.ViewHo
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView tvUsername, tvBody, tvLikes, tvDate;
-        ImageView ivImage;
+        TextView tvUsername, tvBody, tvLikes, tvDate,tvTitle;
+        ImageView ivImage, profileImage;
         ImageButton btnLike, btnComment;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
+            tvTitle = itemView.findViewById(R.id.tv_title);
             tvUsername = itemView.findViewById(R.id.tv_username);
+            profileImage = itemView.findViewById(R.id.iv_profile_image);
             tvBody = itemView.findViewById(R.id.tv_body);
             tvLikes = itemView.findViewById(R.id.tv_likes);
             tvDate = itemView.findViewById(R.id.mem_date);
@@ -118,6 +126,3 @@ public class MemoriesAdapter extends RecyclerView.Adapter<MemoriesAdapter.ViewHo
         }
     }
 }
-
-
-

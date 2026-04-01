@@ -3,7 +3,9 @@ package com.example.betweenus.model;
 public class MemoriesItem {
     private int memoryID;
     private int posterID;
-//    private String posterName;
+
+    private int posterAvatar;
+    private String posterName;
     private String memoryTitle;
     private String memoryBody;
     private String mediaType;
@@ -13,6 +15,8 @@ public class MemoriesItem {
 
     public MemoriesItem(int memoryID,
                         int posterID,
+                        int posterAvatar,
+                        String posterName,
                         String memoryTitle,
                         String memoryBody,
                         String mediaURL,
@@ -21,15 +25,20 @@ public class MemoriesItem {
 
         this.memoryID = memoryID;
         this.posterID = posterID;
+        this.posterAvatar = posterAvatar;
+        this.posterName = posterName;
         this.memoryTitle = memoryTitle;
         this.memoryBody = memoryBody;
-        this.mediaType = mediaType;
         this.mediaURL = mediaURL;
+        this.timeStamp = timeStamp;
+        this.likes = likes;
     }
 
     public int getMemoryID() {
         return memoryID;
     }
+
+    public int getPosterAvatar() {return posterAvatar;}
 
     public void setMemoryID(int memoryID) {
         this.memoryID = memoryID;
@@ -43,13 +52,13 @@ public class MemoriesItem {
         this.posterID = posterID;
     }
 
-//    public String getPosterName() {
-//        return posterName;
-//    }
-//
-//    public void setPosterName(String posterName) {
-//        this.posterName = posterName;
-//    }
+    public String getPosterName() {
+        return posterName;
+    }
+
+    public void setPosterName(String posterName) {
+        this.posterName = posterName;
+    }
 
 
     public String getMemoryTitle() {
@@ -81,4 +90,3 @@ public class MemoriesItem {
     }
 
 }
-
