@@ -1852,6 +1852,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return 0;
     }
 
+    public int getMinutesForDate(int userId, String date) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT SUM(DurationMinutes) FROM study_sessions WHERE UserID=? AND Date=?",
+                new String[]{String.valueOf(userId), date}
+        );
+        int minutes = 0;
+        if (cursor.moveToFirst()) {
+            minutes = cursor.getInt(0);
+        }
+        cursor.close();
+        return minutes;
+    }
+
 
 
 

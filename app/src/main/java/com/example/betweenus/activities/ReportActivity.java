@@ -8,13 +8,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.betweenus.DatabaseHelper;
 import com.example.betweenus.R;
 import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.data.*;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 
+import java.time.LocalDate;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class ReportActivity extends AppCompatActivity {
 
-    private int currentUserID = 1;
+//    private int currentUserID = 1;
 
     private TextView tvTotal, tvToday, tvWeek, tvMonth, tvAvg, tvSuccess;
     private BarChart barChart;
@@ -55,7 +64,7 @@ public class ReportActivity extends AppCompatActivity {
         tvAvg.setText("📊 Avg Session: " + String.format("%.1f min", avg));
         tvSuccess.setText("✨ Success Rate: " + String.format("%.0f%%", success));
 
-        setupChart(today, week, month);
+        setupChart(db);
     }
 
     private String formatTime(int minutes) {
@@ -64,29 +73,53 @@ public class ReportActivity extends AppCompatActivity {
         return hrs + "h " + mins + "m";
     }
 
-    private void setupChart(int today, int week, int month) {
+    private void setupChart(DatabaseHelper db) {
 
         ArrayList<BarEntry> entries = new ArrayList<>();
-        entries.add(new BarEntry(1, today));
-        entries.add(new BarEntry(2, week));
-        entries.add(new BarEntry(3, month));
+        List<String> labels = new ArrayList<>();
 
-        BarDataSet dataSet = new BarDataSet(entries, "Study Time");
+        // Last 7 days, today = 0
+        for (int i = 6; i >= 0; i--) {
+            LocalDate date = LocalDate.now().minusDays(i);
+            int minutes = db.getMinutesForDate(db.currentUserId, date.toString());
 
-        // pastel vibe 🌸
+            entries.add(new BarEntry(6 - i, minutes)); // X = 0..6
+            labels.add(date.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.getDefault()));
+        }
+
+        BarDataSet dataSet = new BarDataSet(entries, "Minutes Studied");
         dataSet.setColors(new int[]{
-                0xFFF8BBD0, // pink
-                0xFFC5E1A5, // green
-                0xFFB3E5FC  // blue
+                0xFFFFCDD2, // pastel red
+                0xFFC8E6C9, // pastel green
+                0xFFBBDEFB, // pastel blue
+                0xFFFFF9C4, // pastel yellow
+                0xFFD1C4E9, // pastel purple
+                0xFFFFE0B2, // pastel orange
+                0xFFB2DFDB  // pastel teal
         });
+        dataSet.setValueTextSize(12f);
 
         BarData data = new BarData(dataSet);
-        data.setValueTextSize(12f);
-
         barChart.setData(data);
+
+        // X-axis labels
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setGranularity(1f);
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getAxisLabel(float value, AxisBase axis) {
+                int index = (int) value;
+                if (index >= 0 && index < labels.size()) {
+                    return labels.get(index);
+                } else {
+                    return "";
+                }
+            }
+        });
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+
         barChart.getDescription().setEnabled(false);
         barChart.animateY(1000);
-
         barChart.invalidate();
     }
 }
