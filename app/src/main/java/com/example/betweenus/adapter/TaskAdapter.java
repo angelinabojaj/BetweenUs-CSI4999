@@ -21,15 +21,17 @@ import java.util.List;
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
 
     private List<Task> taskList;
-    private OnTaskDeleteListener deleteListener;
+    private OnTaskActionListener listener;
 
-    public interface OnTaskDeleteListener {
+    public interface OnTaskActionListener {
         void onTaskDelete(Task task);
+        void onTaskComplete(Task task);
+        void onTaskEdit(Task task);
     }
 
-    public TaskAdapter(List<Task> taskList, OnTaskDeleteListener deleteListener) {
+    public TaskAdapter(List<Task> taskList, OnTaskActionListener listener) {
         this.taskList = taskList;
-        this.deleteListener = deleteListener;
+        this.listener = listener;
     }
 
     @NonNull
@@ -43,8 +45,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
         Task task = taskList.get(position);
         
-        String displayedTitle = "Task #" + task.getTaskId() + ": " + task.getTaskGoal();
-        holder.tvTitle.setText(displayedTitle);
+        holder.tvTitle.setText(task.getTaskGoal());
         holder.tvTime.setText("Due: " + task.getDueDate());
 
         int[] colors = {
@@ -56,20 +57,25 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
         holder.taskCard.setCardBackgroundColor(colors[position % colors.length]);
 
-        // Handle initial state and strikethrough
-        holder.cbComplete.setOnCheckedChangeListener(null); // Clear listener before setting checked state
+        holder.cbComplete.setOnCheckedChangeListener(null);
         holder.cbComplete.setChecked(task.isComplete());
         updateStrikethrough(holder.tvTitle, task.isComplete());
 
         holder.cbComplete.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            task.setComplete(isChecked); // Update in-memory model
-            updateStrikethrough(holder.tvTitle, isChecked);
-            // Database is NOT updated as per user request
+            if (isChecked && listener != null) {
+                listener.onTaskComplete(task);
+            }
         });
 
         holder.btnDelete.setOnClickListener(v -> {
-            if (deleteListener != null) {
-                deleteListener.onTaskDelete(task);
+            if (listener != null) {
+                listener.onTaskDelete(task);
+            }
+        });
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onTaskEdit(task);
             }
         });
     }
@@ -97,7 +103,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         ImageButton btnDelete;
         CheckBox cbComplete;
         CardView taskCard;
-
 
         public TaskViewHolder(@NonNull View itemView) {
             super(itemView);

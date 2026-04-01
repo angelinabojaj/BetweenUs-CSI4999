@@ -86,9 +86,23 @@ public class ProductivityFragment extends Fragment {
         });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        taskAdapter = new TaskAdapter(taskList, task -> {
-            dbHelper.markTaskComplete(task.getTaskId()); // Using existing markTaskComplete as delete/complete for now
-            loadTasks();
+        taskAdapter = new TaskAdapter(taskList, new TaskAdapter.OnTaskActionListener() {
+            @Override
+            public void onTaskDelete(Task task) {
+                dbHelper.markTaskComplete(task.getTaskId()); // Using existing markTaskComplete as delete/complete for now
+                loadTasks();
+            }
+
+            @Override
+            public void onTaskComplete(Task task) {
+                dbHelper.markTaskComplete(task.getTaskId());
+                loadTasks();
+            }
+
+            @Override
+            public void onTaskEdit(Task task) {
+                showEditTaskDialog(task);
+            }
         });
         recyclerView.setAdapter(taskAdapter);
 
@@ -153,5 +167,39 @@ public class ProductivityFragment extends Fragment {
 
         btnClose.setOnClickListener(v -> dialog.dismiss());
 
+    }
+
+    private void showEditTaskDialog(Task task) {
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_edit_task, null);
+        EditText etGoal = view.findViewById(R.id.et_edit_task_goal);
+        EditText etDueDate = view.findViewById(R.id.et_edit_task_due_date);
+        Button btnCancel = view.findViewById(R.id.btn_cancel_edit);
+        Button btnSave = view.findViewById(R.id.btn_save_task);
+
+        etGoal.setText(task.getTaskGoal());
+        etDueDate.setText(task.getDueDate());
+
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
+                .setView(view)
+                .create();
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnSave.setOnClickListener(v -> {
+            String newGoal = etGoal.getText().toString().trim();
+            String newDueDate = etDueDate.getText().toString().trim();
+
+            if (!newGoal.isEmpty()) {
+                dbHelper.updateTaskGoal(task.getTaskId(), newGoal);
+                dbHelper.updateTaskDueDate(task.getTaskId(), newDueDate);
+                loadTasks();
+                dialog.dismiss();
+                Toast.makeText(getContext(), "Task updated", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "Goal cannot be empty", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        dialog.show();
     }
 }

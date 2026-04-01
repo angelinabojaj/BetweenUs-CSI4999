@@ -25,8 +25,16 @@ public class Task {
         return taskGoal;
     }
 
+    public void setTaskGoal(String taskGoal) {
+        this.taskGoal = taskGoal;
+    }
+
     public String getDueDate() {
         return dueDate;
+    }
+
+    public void setDueDate(String dueDate) {
+        this.dueDate = dueDate;
     }
 
     public boolean isComplete() {
