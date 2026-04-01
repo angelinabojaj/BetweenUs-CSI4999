@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.betweenus.DatabaseHelper;
 import com.example.betweenus.R;
 import com.example.betweenus.activities.PomodoroActivity;
+import com.example.betweenus.activities.ReportActivity;
 import com.example.betweenus.adapter.TaskAdapter;
 import com.example.betweenus.model.Task;
 
@@ -37,7 +38,7 @@ public class ProductivityFragment extends Fragment {
     private EditText etTaskInput;
     private Button btnAddTask;
 
-    private ImageButton btnSuggestion, btnPomodoro;
+    private ImageButton btnSuggestion, btnPomodoro, btnStats;
 
     // Hardcoded for now, should ideally come from user session
 //    private int currentUserId = 1;
@@ -60,6 +61,8 @@ public class ProductivityFragment extends Fragment {
 
         btnSuggestion = view.findViewById(R.id.btn_suggestion);
         btnPomodoro = view.findViewById(R.id.btn_pomodoro);
+        btnStats = view.findViewById(R.id.btn_stats);
+
 
 
         btnSuggestion.setOnClickListener(v -> {
@@ -78,6 +81,18 @@ public class ProductivityFragment extends Fragment {
             if (dbHelper.isUserPremium(dbHelper, dbHelper.currentUserId)) {
 
                 Intent intent = new Intent(getActivity(), PomodoroActivity.class);
+                startActivity(intent);
+
+            } else {
+                Toast.makeText(getContext(), "Premium feature 🌟", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnStats.setOnClickListener(v -> {
+
+            if (dbHelper.isUserPremium(dbHelper, dbHelper.currentUserId)) {
+
+                Intent intent = new Intent(getActivity(), ReportActivity.class);
                 startActivity(intent);
 
             } else {

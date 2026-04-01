@@ -49,6 +49,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.glide)
     annotationProcessor(libs.glide.compiler)
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
     implementation(libs.circleimageview)
 

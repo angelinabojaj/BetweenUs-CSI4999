@@ -29,7 +29,7 @@ import java.util.Random;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    public int currentUserId = 8;
+    public int currentUserId = 1;
     private static final String DATABASE_NAME = "BetweenUs.db";
     public static final int DATABASE_VERSION = 5; // increase this
     //private static String DB_PATH = "/data/data/BetweenUs/databases/";
@@ -1727,6 +1727,131 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return points;
     }
 
+    public void insertStudySession(int userId, String date, int minutes, int completed) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("UserID", userId);
+        values.put("Date", date);
+        values.put("DurationMinutes", minutes);
+        values.put("Completed", completed);
+
+        db.insert("study_sessions", null, values);
+    }
+
+    public void addPointsToUser(int userId, int points) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.execSQL("UPDATE users SET Points = Points + ? WHERE UserID = ?",
+                new Object[]{points, userId});
+    }
+
+    //generate Pomodoro report
+
+    public int getTotalMinutes(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(
+                "SELECT SUM(DurationMinutes) FROM study_sessions WHERE UserID = ?",
+                new String[]{String.valueOf(userId)}
+        );
+
+        if (cursor.moveToFirst()) {
+            return cursor.getInt(0);
+        }
+
+        return 0;
+    }
+
+    public int getTodayMinutes(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(
+                "SELECT SUM(DurationMinutes)\n" +
+                        "FROM study_sessions\n" +
+                        "WHERE UserID = ?\n" +
+                        "AND Date = DATE('now')",
+                new String[]{String.valueOf(userId)}
+        );
+
+        if (cursor.moveToFirst()) {
+            return cursor.getInt(0);
+        }
+
+        return 0;
+    }
+
+    public int getWeekMinutes(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(
+                "SELECT SUM(DurationMinutes)\n" +
+                        "FROM study_sessions\n" +
+                        "WHERE UserID = ?\n" +
+                        "AND Date >= DATE('now', '-7 days')",
+                new String[]{String.valueOf(userId)}
+        );
+
+        if (cursor.moveToFirst()) {
+            return cursor.getInt(0);
+        }
+
+        return 0;
+    }
+
+    public int getMonthMinutes(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(
+                "SELECT SUM(DurationMinutes)\n" +
+                        "FROM study_sessions\n" +
+                        "WHERE UserID = ?\n" +
+                        "AND Date >= DATE('now', '-30 days')",
+                new String[]{String.valueOf(userId)}
+        );
+
+        if (cursor.moveToFirst()) {
+            return cursor.getInt(0);
+        }
+
+        return 0;
+    }
+
+    public int getSuccessRate(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(
+                "SELECT \n" +
+                        "    SUM(Completed) * 1.0 / COUNT(*)\n" +
+                        "FROM study_sessions\n" +
+                        "WHERE UserID = ?",
+                new String[]{String.valueOf(userId)}
+        );
+
+        if (cursor.moveToFirst()) {
+            return cursor.getInt(0);
+        }
+
+        return 0;
+    }
+
+    public int getAverageStudyTime (int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(
+                "SELECT AVG(DurationMinutes)\n" +
+                        "FROM study_sessions\n" +
+                        "WHERE UserID = ?",
+                new String[]{String.valueOf(userId)}
+        );
+
+        if (cursor.moveToFirst()) {
+            return cursor.getInt(0);
+        }
+
+        return 0;
+    }
+
 
 
 
@@ -1746,5 +1871,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 //                new String[]{String.valueOf(userId)}
 //        );
 //    }
+
+    public void insertSampleData() {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.execSQL("DELETE FROM study_sessions"); // reset
+
+        db.execSQL("INSERT INTO study_sessions (UserID, Date, DurationMinutes, Completed) VALUES (1, DATE('now'), 25, 1)");
+        db.execSQL("INSERT INTO study_sessions (UserID, Date, DurationMinutes, Completed) VALUES (1, DATE('now'), 15, 0)");
+
+        db.execSQL("INSERT INTO study_sessions VALUES (NULL,1,DATE('now','-1 day'),30,1)");
+        db.execSQL("INSERT INTO study_sessions VALUES (NULL,1,DATE('now','-2 day'),20,1)");
+        db.execSQL("INSERT INTO study_sessions VALUES (NULL,1,DATE('now','-3 day'),10,0)");
+        db.execSQL("INSERT INTO study_sessions VALUES (NULL,1,DATE('now','-4 day'),45,1)");
+        db.execSQL("INSERT INTO study_sessions VALUES (NULL,1,DATE('now','-6 day'),25,1)");
+
+        db.execSQL("INSERT INTO study_sessions VALUES (NULL,1,DATE('now','-10 day'),60,1)");
+        db.execSQL("INSERT INTO study_sessions VALUES (NULL,1,DATE('now','-15 day'),40,0)");
+        db.execSQL("INSERT INTO study_sessions VALUES (NULL,1,DATE('now','-20 day'),35,1)");
+    }
 
 }
