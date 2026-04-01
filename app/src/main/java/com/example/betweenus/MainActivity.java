@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         testChangePoints();
         //testBuyItem();
         testGetShopItems();
+        //testUpdateTaskGoal();
 
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -181,6 +182,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean updateTaskDueDate(int taskID, String newDueDate){ return myDBHelper.updateTaskDueDate(taskID, newDueDate);}
 
     public boolean updateTaskGoal(int taskID, String newGoal){ return myDBHelper.updateTaskGoal(taskID, newGoal);}
+
+    public void testUpdateTaskGoal(){
+        updateTaskGoal(1, "Test Change");
+        updateTaskDueDate(1, "Test Due Date");
+    }
 
     public String getUserSchedule(int userID) {
         return myDBHelper.getUserSchedule(userID);
