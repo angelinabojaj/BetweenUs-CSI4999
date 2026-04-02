@@ -1,6 +1,8 @@
 package com.example.betweenus.adapter;
 
+import android.animation.ObjectAnimator;
 import android.os.CountDownTimer;
+import android.view.animation.LinearInterpolator;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -8,6 +10,7 @@ public class PomodoroTimer {
 
     private CountDownTimer timer;
     private TextView tvTime;
+    private ObjectAnimator progressAnimator;
     private ProgressBar progressBar;
 
     private int totalTime;
@@ -29,6 +32,15 @@ public class PomodoroTimer {
         totalTime = seconds;
         isRunning = true;
 
+        progressBar.setProgress(100);
+        progressBar.getProgressDrawable().setTint(0xFF6BCB77);
+
+        // 🎯 SMOOTH ANIMATION (100 → 0)
+        progressAnimator = ObjectAnimator.ofInt(progressBar, "progress", 100, 0);
+        progressAnimator.setDuration(seconds * 1000L);
+        progressAnimator.setInterpolator(new LinearInterpolator());
+        progressAnimator.start();
+
         timer = new CountDownTimer(seconds * 1000L, 1000) {
             public void onTick(long millisUntilFinished) {
 
@@ -44,12 +56,19 @@ public class PomodoroTimer {
 
                 tvTime.setText(String.format("%02d:%02d", min, sec));
 
-                int progress = (int) ((secondsElapsed / (float) totalTime) * 100);
+                // ✅ FIXED progress
+                int progress = (int) ((secondsLeft / (float) totalTime) * 100);
                 progressBar.setProgress(progress);
+
+                if (secondsLeft < 5) {
+                    progressBar.getProgressDrawable().setTint(0xFFFF6B6B); // soft red
+                }
             }
 
             public void onFinish() {
                 isRunning = false;
+
+                progressBar.setProgress(100);
 
                 if (listener != null) {
                     listener.onFinish();
@@ -61,6 +80,10 @@ public class PomodoroTimer {
     public void stop() {
         if (timer != null) timer.cancel();
         isRunning = false;
+    }
+
+    public boolean isRunning() {
+        return isRunning;
     }
 
     public interface TimerListener {

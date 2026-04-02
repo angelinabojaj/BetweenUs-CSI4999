@@ -1,16 +1,12 @@
 package com.example.betweenus.activities;
 
 import android.app.AlertDialog;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.Spinner;
-import android.widget.TextView;
+import android.widget.*;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.betweenus.DatabaseHelper;
@@ -19,8 +15,14 @@ import com.example.betweenus.adapter.PomodoroTimer;
 
 public class PomodoroActivity extends AppCompatActivity {
 
-    private TextView tvTime;
+    private boolean isTestMode = true; //for testing
+
+    private int testFocusSeconds = 30;
+    private int testBreakSeconds = 10;
+
+    private TextView tvTime, tvPoints;
     private ProgressBar circleTimer;
+    private ImageButton btnPlay, btnSound, btnSettings;
 
     private PomodoroTimer timerManager;
 
@@ -34,27 +36,41 @@ public class PomodoroActivity extends AppCompatActivity {
     private int focusSecondsCompleted = 0;
     private int currentUserID = 1;
 
+    private boolean isRunning = false;
+    private boolean soundOn = true;
+
+    private MediaPlayer mediaPlayer;
+    private int selectedSound = R.raw.je_te_veux;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_pomodoro);
 
         tvTime = findViewById(R.id.tvTime);
+        tvPoints = findViewById(R.id.tvPoints);
         circleTimer = findViewById(R.id.circleTimer);
 
-        Button btnStart = findViewById(R.id.btnStart);
-        Button btnCustomize = findViewById(R.id.btnCustomize);
+        btnPlay = findViewById(R.id.btnPlay);
+        btnSound = findViewById(R.id.btnSound);
+        btnSettings = findViewById(R.id.btn_timer_settings);
 
-        DatabaseHelper db = new DatabaseHelper(this);
-        db.insertSampleData();
 
-        // ✅ FIX: Initialize ONCE here
+        if (isTestMode) {
+            tvTime.setText(String.format("00:%02d", testFocusSeconds));
+        } else {
+            tvTime.setText(String.format("%02d:00", focusMinutes));
+        }
+
+        updatePointsUI();
+
         timerManager = new PomodoroTimer(tvTime, circleTimer, new PomodoroTimer.TimerListener() {
             @Override
             public void onTick(int secondsElapsed) {
+
                 if (isFocusPhase) {
                     focusSecondsCompleted = secondsElapsed;
+
                 }
             }
 
@@ -64,40 +80,84 @@ public class PomodoroActivity extends AppCompatActivity {
             }
         });
 
-        btnStart.setOnClickListener(v -> {
-            currentRound = 1;
-            isFocusPhase = true;
-            startNextPhase();
+        // ▶️ PLAY / STOP
+        btnPlay.setOnClickListener(v -> {
+            if (!isRunning) {
+                btnPlay.setImageResource(R.drawable.timer_end_btn);
+                startSession();
+                isRunning = true;
+            } else {
+                btnPlay.setImageResource(R.drawable.timer_start_btn);
+                timerManager.stop();
+
+                stopSound();
+                isRunning = false;
+            }
         });
 
-        btnCustomize.setOnClickListener(v -> showCustomizeDialog());
+        // 🔊 SOUND
+        btnSound.setOnClickListener(v -> {
+            soundOn = !soundOn;
+
+            if (soundOn) {
+                btnSound.setImageResource(R.drawable.sound_on_btn);
+                startSound();
+            } else {
+                btnSound.setImageResource(R.drawable.sound_off_btn);
+                stopSound();
+            }
+        });
+
+        // ⚙️ SETTINGS MENU
+        btnSettings.setOnClickListener(v -> showSettingsMenu());
+    }
+
+    private void startSession() {
+        currentRound = 1;
+        isFocusPhase = true;
+        startNextPhase();
     }
 
     private void startNextPhase() {
-
-        // ✅ Reset tracking each phase
         focusSecondsCompleted = 0;
 
-        int time = isFocusPhase ? focusMinutes : breakMinutes;
+        int timeInSeconds;
 
-        timerManager.startTimer(time * 60);
+        if (isTestMode) {
+            timeInSeconds = isFocusPhase ? testFocusSeconds : testBreakSeconds;
+        } else {
+            int minutes = isFocusPhase ? focusMinutes : breakMinutes;
+            timeInSeconds = minutes * 60;
+        }
+
+        timerManager.startTimer(timeInSeconds);
+//        int time = isFocusPhase ? focusMinutes : breakMinutes;
+//        timerManager.startTimer(time * 60);
+
+        if (soundOn) startSound();
     }
 
     private void handlePhaseFinish() {
 
         if (isFocusPhase) {
+            int minutes;
 
-            int minutesCompleted = focusSecondsCompleted / 60;
+            if (isTestMode) {
+                minutes = focusSecondsCompleted; // 1 point per second (for testing)
+            } else {
+                minutes = focusSecondsCompleted / 60;
+            }
+//            int minutes = focusSecondsCompleted / 60;
 
-            int pointsEarned = minutesCompleted + 10;
+            int points = minutes + 10;
 
-            saveSession(true, minutesCompleted);
-            updateUserPoints(pointsEarned);
+            saveSession(true, minutes);
+            updateUserPoints(points);
+            updatePointsUI();
 
             showBreakDialog();
 
         } else {
-
             currentRound++;
 
             if (currentRound > rounds) {
@@ -109,13 +169,73 @@ public class PomodoroActivity extends AppCompatActivity {
         }
 
         isFocusPhase = !isFocusPhase;
-
-        // Start next phase automatically
         startNextPhase();
     }
 
-    private void showCustomizeDialog() {
+    // ===================== SETTINGS =====================
 
+    private void showSettingsMenu() {
+        PopupMenu menu = new PopupMenu(this, btnSettings);
+
+        menu.getMenu().add("Customize Timer");
+        menu.getMenu().add("Customize Sound");
+        menu.getMenu().add("Customize Background");
+
+        menu.setOnMenuItemClickListener(item -> {
+            switch (item.getTitle().toString()) {
+                case "Customize Timer":
+                    showCustomizeDialog();
+                    break;
+                case "Customize Sound":
+                    showSoundDialog();
+                    break;
+                case "Customize Background":
+                    showBackgroundDialog();
+                    break;
+            }
+            return true;
+        });
+
+        menu.show();
+    }
+
+    private void showSoundDialog() {
+
+        String[] sounds = {"je te veux", "None"};
+
+        new AlertDialog.Builder(this)
+                .setTitle("Choose Sound")
+                .setItems(sounds, (dialog, which) -> {
+
+                    stopSound();
+
+                    if (which == 0) selectedSound = R.raw.je_te_veux;
+//                    else if (which == 1) selectedSound = R.raw.cafe;
+                    else return;
+
+                    if (soundOn) startSound();
+                })
+                .show();
+    }
+
+    private void showBackgroundDialog() {
+
+        String[] backgrounds = {"Background 1", "Background 2", "Background 3"};
+
+        new AlertDialog.Builder(this)
+                .setTitle("Choose Background")
+                .setItems(backgrounds, (dialog, which) -> {
+
+                    ImageView bg = findViewById(R.id.bgImage);
+
+                    if (which == 0) bg.setImageResource(R.drawable.bg1);
+                    else if (which == 1) bg.setImageResource(R.drawable.bg2);
+                    else if (which == 2) bg.setImageResource(R.drawable.bg3);
+                })
+                .show();
+    }
+
+    private void showCustomizeDialog() {
         View view = getLayoutInflater().inflate(R.layout.dialog_customize_time, null);
 
         Spinner spFocus = view.findViewById(R.id.spFocus);
@@ -123,68 +243,96 @@ public class PomodoroActivity extends AppCompatActivity {
         Spinner spRounds = view.findViewById(R.id.spRounds);
         Button btnSave = view.findViewById(R.id.btn_save);
 
-        Integer[] focusOptions = {15, 20, 25, 30, 45};
-        Integer[] breakOptions = {5, 10, 15};
+
+        Integer[] focusOptions = {1,15, 20, 25, 30, 45};
+        Integer[] breakOptions = {1,5, 10, 15};
         Integer[] roundOptions = {1, 2, 3, 4, 5};
 
         spFocus.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, focusOptions));
         spBreak.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, breakOptions));
         spRounds.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, roundOptions));
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setView(view)
-                .create();
-
+        AlertDialog dialog = new AlertDialog.Builder(this).setView(view).create();
         dialog.show();
-
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        dialog.getWindow().setLayout(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
 
         btnSave.setOnClickListener(v -> {
             focusMinutes = (int) spFocus.getSelectedItem();
             breakMinutes = (int) spBreak.getSelectedItem();
             rounds = (int) spRounds.getSelectedItem();
+
+            if (isTestMode) {
+                int display = isFocusPhase ? testFocusSeconds : testBreakSeconds;
+                tvTime.setText(String.format("00:%02d", display));
+            } else {
+                int display = isFocusPhase ? focusMinutes : breakMinutes;
+                tvTime.setText(String.format("%02d:00", display));
+            }
+
+//            int displayTime = isFocusPhase ? focusMinutes : breakMinutes;
+//            tvTime.setText(String.format("%02d:00", displayTime));
+            circleTimer.setProgress(100);
             dialog.dismiss();
         });
     }
 
+    // ===================== SOUND =====================
+
+    private void startSound() {
+        stopSound();
+        mediaPlayer = MediaPlayer.create(this, selectedSound);
+        mediaPlayer.setLooping(true);
+        mediaPlayer.start();
+    }
+
+    private void stopSound() {
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
+
+    // ===================== DB =====================
+
+    private void saveSession(boolean completed, int minutes) {
+        String date = java.time.LocalDate.now().toString();
+        DatabaseHelper db = new DatabaseHelper(this);
+        db.insertStudySession(db.currentUserId, date, minutes, completed ? 1 : 0);
+    }
+
+    private void updateUserPoints(int points) {
+        DatabaseHelper db = new DatabaseHelper(this);
+        db.addPointsToUser(db.currentUserId, points);
+    }
+
+    private void updatePointsUI() {
+        DatabaseHelper db = new DatabaseHelper(this);
+        int points = db.getUserPoints(db.currentUserId);
+        tvPoints.setText(String.valueOf(points));
+    }
+
+    // ===================== DIALOGS =====================
+
     private void showBreakDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Break Time 🌿")
-                .setMessage("You did great! Time to rest.")
-                .setPositiveButton("Start Break", null)
+                .setMessage("Rest time!")
+                .setPositiveButton("OK", null)
                 .show();
     }
 
     private void showFocusDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Focus Time 📚")
-                .setMessage("Ready for the next round?")
-                .setPositiveButton("Start", null)
+                .setMessage("Next round!")
+                .setPositiveButton("OK", null)
                 .show();
     }
 
     private void showSessionCompleteDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("All Done 🎉")
-                .setMessage("You completed all rounds!")
+                .setMessage("Great job!")
                 .setPositiveButton("Yay!", null)
                 .show();
-    }
-
-    private void saveSession(boolean completed, int minutes) {
-
-        String date = java.time.LocalDate.now().toString();
-
-        DatabaseHelper db = new DatabaseHelper(this);
-        db.insertStudySession(db.currentUserId, date, minutes, completed ? 1 : 0);
-    }
-
-    private void updateUserPoints(int pointsToAdd) {
-        DatabaseHelper db = new DatabaseHelper(this);
-        db.addPointsToUser(db.currentUserId, pointsToAdd);
     }
 }
