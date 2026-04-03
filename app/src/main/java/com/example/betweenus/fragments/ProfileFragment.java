@@ -1,5 +1,6 @@
 package com.example.betweenus.fragments;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
@@ -7,8 +8,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CalendarView;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
+import java.text.SimpleDateFormat;
+import java.util.GregorianCalendar;
+import java.util.Locale;
 
 import androidx.fragment.app.Fragment;
 
@@ -17,7 +24,10 @@ import com.example.betweenus.R;
 import com.example.betweenus.activities.ProfileDetailActivity;
 import com.example.betweenus.activities.ShopActivity;
 import com.example.betweenus.adapter.ChatListAdapter;
+import com.example.betweenus.model.Task;
 import com.google.android.material.imageview.ShapeableImageView;
+
+import java.util.List;
 
 public class ProfileFragment extends Fragment {
 
@@ -56,6 +66,8 @@ public class ProfileFragment extends Fragment {
             startActivity(new Intent(getActivity(), ShopActivity.class));
         });
 
+        // call personal schedule
+        setupPersonalSchedule(view);
         return view;
     }
 
@@ -118,4 +130,31 @@ public class ProfileFragment extends Fragment {
         int borderColor = ChatListAdapter.getBoarder(avatarId);
         pfp.setStrokeColor(ColorStateList.valueOf(borderColor));
     }
+
+    //Calendar view setup
+    private void setupPersonalSchedule(View view){
+        FrameLayout calendarContainer = view.findViewById(R.id.googleCalendarContainer);
+
+        //create calendarView
+        CalendarView calendarView = new CalendarView(requireContext());
+        calendarContainer.addView(calendarView);
+
+        //highlight days with tasks
+        List<Task> tasks = dbHelper.getTasksForUser(dbHelper.currentUserId);
+        calendarView.setOnDateChangeListener((cv, year, month, dayOfMonth) ->{
+            String selectDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth);
+            StringBuilder sb = new StringBuilder();
+            for(Task t : tasks){
+                if(t.getDueDate().startsWith(selectDate)){
+                    sb.append("📌 ").append(t.getTaskGoal()).append("\n");
+
+                }
+            }
+            String msg = sb.length() == 0 ? "No task for today!" : sb.toString().trim();
+            String displayDate = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault()).format(new GregorianCalendar(year, month, dayOfMonth).getTime());
+            new AlertDialog.Builder(requireContext()).setTitle("📅 " + displayDate).setMessage(msg).setPositiveButton("Got it!", null).show();
+        });
+    }
+
+
 }

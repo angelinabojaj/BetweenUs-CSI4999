@@ -128,7 +128,9 @@ public class ProductivityFragment extends Fragment {
         btnAddTask.setOnClickListener(v -> {
             String goal = etTaskInput.getText().toString().trim();
             if (!goal.isEmpty()) {
-                long result = dbHelper.createTask(dbHelper.currentUserId, goal, 0, "Today");
+                //Create valid DueDate
+                String dueDate = new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date()) + " 23:59:00";
+                long result = dbHelper.createTask(dbHelper.currentUserId, goal, 0, dueDate);
                 if (result != -1) {
                     etTaskInput.setText("");
                     loadTasks();

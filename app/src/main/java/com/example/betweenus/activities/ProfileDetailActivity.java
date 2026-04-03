@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -22,7 +24,9 @@ import com.example.betweenus.DatabaseHelper;
 import com.example.betweenus.MainActivity;
 import com.example.betweenus.R;
 import com.example.betweenus.adapter.FriendAdapter;
+import com.example.betweenus.adapter.TaskAdapter;
 import com.example.betweenus.model.Friend;
+import com.example.betweenus.model.Task;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +38,7 @@ public class ProfileDetailActivity extends AppCompatActivity {
     private List<Friend> friendList;
     private DatabaseHelper dbHelper;
 //    private int currentUserID = 1; // replace later with logged-in user
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +62,10 @@ public class ProfileDetailActivity extends AppCompatActivity {
         EditText searchInput = findViewById(R.id.searchFriends);
         Button addFriendBtn = findViewById(R.id.addFriendBtn);
         ImageButton backBtn = findViewById(R.id.btn_back);
+
+
+
+
 
         backBtn.setOnClickListener(v -> finish());
 
