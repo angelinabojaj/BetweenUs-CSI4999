@@ -1176,7 +1176,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_SENDER_ID, senderId);
         values.put(COL_RECEIVER_ID, receiverId);
         values.put(COL_MESSAGE_TEXT, text);
-        values.put(COL_MESSAGE_TIME, System.currentTimeMillis());
+
+        String timestamp = new java.text.SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss",
+                java.util.Locale.getDefault()
+        ).format(new java.util.Date());
+
+        values.put(COL_MESSAGE_TIME, timestamp);
 
         return db.insert(TABLE_MESSAGES, null, values);
     }
@@ -1188,8 +1194,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String queryStr = "SELECT * FROM " + TABLE_MESSAGES +
-                " WHERE " + COL_SENDER_ID + " = ? OR " + COL_RECEIVER_ID + " = ?" +
-                " ORDER BY " + COL_MESSAGE_TIME;
+                " WHERE (" + COL_SENDER_ID + " = ? AND " + COL_RECEIVER_ID + " = ?)" +
+                " OR (" + COL_SENDER_ID + " = ? AND " + COL_RECEIVER_ID + " = ?)" +
+                " ORDER BY " + COL_MESSAGE_TIME + " ASC";
 
         Cursor cursor = db.rawQuery(
                 queryStr,
@@ -1236,7 +1243,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String queryStr = "SELECT * FROM " + TABLE_MESSAGES +
                 " WHERE (" + COL_SENDER_ID + " = ? AND " + COL_RECEIVER_ID + " = ?)" +
                 " OR (" + COL_SENDER_ID + " = ? AND " + COL_RECEIVER_ID + " = ?)" +
-                " ORDER BY " + COL_MESSAGE_TIME;
+                " ORDER BY " + COL_MESSAGE_TIME + " ASC";
 
         Cursor cursor = db.rawQuery(
                 queryStr,

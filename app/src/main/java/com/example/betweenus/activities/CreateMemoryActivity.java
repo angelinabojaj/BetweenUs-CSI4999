@@ -70,13 +70,18 @@ public class CreateMemoryActivity extends AppCompatActivity {
                 imageName = "default_memory.jpg";
             }
 
+            String timestamp = new java.text.SimpleDateFormat(
+                    "yyyy-MM-dd HH:mm:ss",
+                    java.util.Locale.getDefault()
+            ).format(new java.util.Date());
+
             dbHelper.createMemory(
                     1,
                     title,
                     body,
                     "image",
                     imageName, // ONLY filename stored
-                    System.currentTimeMillis() + ""
+                    timestamp
             );
 
             Toast.makeText(this, "Post created!", Toast.LENGTH_SHORT).show();
