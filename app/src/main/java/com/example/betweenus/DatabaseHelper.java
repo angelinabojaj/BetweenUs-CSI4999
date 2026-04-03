@@ -45,7 +45,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL_Premium = "IsPremium";
     public static final String COL_AVATAR = "Avatar";
     private static final String COL_MOOD = "CurrentMood";
-    private static final String COL_FRIEND_COUNT = "FriendsNumber";
+    private static final String COL_FRIEND_COUNT = "FriendNumber";
     private static final String COL_POINTS = "Points";
     private static final String COL_SCHEDULE = "Schedule"; // Add this at top with other column declarations
     private static final String COL_PASSWORD = "password";
@@ -447,15 +447,44 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COL_FIRST_FRIEND_ID, firstFriendID);
         values.put(COL_SECOND_FRIEND_ID, secondFriendID);
-        //updateFriendCount(firstFriendID, 1);
-        //updateFriendCount(secondFriendID, 1);
+        updateFriendCount(firstFriendID, 1);
+        updateFriendCount(secondFriendID, 1);
         return db.insert(TABLE_FRIENDS, null, values);
     }
 
     //Internal function for updating friend count whenever a new friendship is established
-    private void updateFriendCount(int userId, int change) {
+    private void updateFriendCount(int userId, int friends) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("UPDATE " + TABLE_USERS + " SET " + COL_FRIEND_COUNT + " = " + COL_FRIEND_COUNT + " + " + change + " WHERE " + COL_USER_ID + " = " + userId);
+
+        // 1. Get current friend count
+        int currentCount = 0;
+
+        Cursor cursor = db.rawQuery(
+                "SELECT " + COL_FRIEND_COUNT +
+                        " FROM " + TABLE_USERS +
+                        " WHERE " + COL_USER_ID + " = ?",
+                new String[]{String.valueOf(userId)}
+        );
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                currentCount = cursor.getInt(
+                        cursor.getColumnIndexOrThrow(COL_FRIEND_COUNT)
+                );
+            }
+            cursor.close();
+        }
+
+        // 2. Increment
+        int newCount = currentCount + 1;
+
+        // 3. Update with new value
+        db.execSQL(
+                "UPDATE " + TABLE_USERS +
+                        " SET " + COL_FRIEND_COUNT + " = ?" +
+                        " WHERE " + COL_USER_ID + " = ?",
+                new Object[]{newCount, userId}
+        );
     }
 
     public Cursor getUserFriends(Integer userID) {
