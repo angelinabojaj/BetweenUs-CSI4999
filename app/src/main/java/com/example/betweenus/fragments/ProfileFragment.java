@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
@@ -14,12 +15,15 @@ import androidx.fragment.app.Fragment;
 import com.example.betweenus.DatabaseHelper;
 import com.example.betweenus.R;
 import com.example.betweenus.activities.ProfileDetailActivity;
+import com.example.betweenus.activities.ShopActivity;
 import com.example.betweenus.adapter.ChatListAdapter;
 import com.google.android.material.imageview.ShapeableImageView;
 
 public class ProfileFragment extends Fragment {
 
     private TextView friendsCount, addFriendLink, username, bio;
+
+    private ImageButton shopbtn;
     private ShapeableImageView pfp;
     private DatabaseHelper dbHelper;
 
@@ -35,6 +39,8 @@ public class ProfileFragment extends Fragment {
         pfp = view.findViewById(R.id.profileImage);
         friendsCount = view.findViewById(R.id.friendsCount);
         addFriendLink = view.findViewById(R.id.addFriendLink);
+        shopbtn = view.findViewById(R.id.btn_shop);
+
 
         loadUserData();
 
@@ -44,6 +50,10 @@ public class ProfileFragment extends Fragment {
 
         addFriendLink.setOnClickListener(v -> {
             startActivity(new Intent(getActivity(), ProfileDetailActivity.class));
+        });
+
+        shopbtn.setOnClickListener(v -> {
+            startActivity(new Intent(getActivity(), ShopActivity.class));
         });
 
         return view;

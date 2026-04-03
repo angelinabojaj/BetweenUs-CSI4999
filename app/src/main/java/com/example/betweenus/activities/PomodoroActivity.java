@@ -1,6 +1,7 @@
 package com.example.betweenus.activities;
 
 import android.app.AlertDialog;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
@@ -12,6 +13,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.betweenus.DatabaseHelper;
 import com.example.betweenus.R;
 import com.example.betweenus.adapter.PomodoroTimer;
+import com.example.betweenus.model.ShopItem;
+
+import java.io.InputStream;
+import java.util.ArrayList;
 
 public class PomodoroActivity extends AppCompatActivity {
 
@@ -220,17 +225,33 @@ public class PomodoroActivity extends AppCompatActivity {
 
     private void showBackgroundDialog() {
 
-        String[] backgrounds = {"Background 1", "Background 2", "Background 3"};
+        DatabaseHelper db = new DatabaseHelper(this);
+        ArrayList<ShopItem> owned = db.getShopItemsOwned(currentUserID);
+
+        String[] names = new String[owned.size()];
+
+        for (int i = 0; i < owned.size(); i++) {
+            names[i] = owned.get(i).getItemName();
+        }
 
         new AlertDialog.Builder(this)
                 .setTitle("Choose Background")
-                .setItems(backgrounds, (dialog, which) -> {
+                .setItems(names, (dialog, which) -> {
 
-                    ImageView bg = findViewById(R.id.bgImage);
+                    ShopItem item = owned.get(which);
 
-                    if (which == 0) bg.setImageResource(R.drawable.bg1);
-                    else if (which == 1) bg.setImageResource(R.drawable.bg2);
-                    else if (which == 2) bg.setImageResource(R.drawable.bg3);
+                    try {
+                        // 🔥 Load image from assets
+                        InputStream inputStream = getAssets().open(item.getImagePath());
+                        Drawable drawable = Drawable.createFromStream(inputStream, null);
+
+                        ImageView bg = findViewById(R.id.bgImage);
+                        bg.setImageDrawable(drawable);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(this, "Error loading image", Toast.LENGTH_SHORT).show();
+                    }
                 })
                 .show();
     }
@@ -244,7 +265,7 @@ public class PomodoroActivity extends AppCompatActivity {
         Button btnSave = view.findViewById(R.id.btn_save);
 
 
-        Integer[] focusOptions = {1,15, 20, 25, 30, 45};
+        Integer[] focusOptions = {1,3,15, 20, 25, 30, 45};
         Integer[] breakOptions = {1,5, 10, 15};
         Integer[] roundOptions = {1, 2, 3, 4, 5};
 

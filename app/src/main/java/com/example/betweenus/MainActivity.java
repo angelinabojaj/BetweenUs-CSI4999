@@ -217,16 +217,16 @@ public class MainActivity extends AppCompatActivity {
     public boolean changePoints(int UserID, int points){ return myDBHelper.spendUserPoints(UserID, points);}
     //call changePoints first and ensure it succeeds before calling this function, if changePoints returns false then the user has insufficient points
     //if this function returns false, the user either already owns the item or there was an error
-    public boolean buyShopItem(int UserID, int ShopItemId){ return myDBHelper.buyItem(UserID, ShopItemId);}
+//    public boolean buyShopItem(int UserID, int ShopItemId){ return myDBHelper.buyItem(UserID, ShopItemId);}
 
     public int getUserPoints(int UserID){ return myDBHelper.getUserPoints(UserID);}
-    public ArrayList<Integer> getOwnedShopItems(int UserID){
+    public ArrayList<ShopItem> getOwnedShopItems(int UserID){
         return myDBHelper.getShopItemsOwned(UserID);
     }
 
     public void testGetShopItems() {
         // 1. Retrieve all shop items
-        List<ShopItem> shopItems = myDBHelper.getShopItems();
+       ArrayList<ShopItem> shopItems = myDBHelper.getAllShopItems();
 
         // 2. Print the results
         System.out.println("Shop Items:");
@@ -249,22 +249,22 @@ public class MainActivity extends AppCompatActivity {
         System.out.println(getUserPoints(1));
     }
 
-    public void testBuyItem() {
-        int userID = 1;
-        int itemID = 2;
-
-        // 1. Get owned items BEFORE
-        ArrayList<Integer> beforeItems = getOwnedShopItems(userID);
-        System.out.println("Before purchase: " + beforeItems);
-
-        // 2. Attempt to buy the item
-        boolean bought = myDBHelper.buyItem(userID, itemID);
-        System.out.println("Item bought: " + bought);
-
-        // 3. Get owned items AFTER
-        ArrayList<Integer> afterItems = getOwnedShopItems(userID);
-        System.out.println("After purchase: " + afterItems);
-    }
+//    public void testBuyItem() {
+//        int userID = 1;
+//        int itemID = 2;
+//
+//        // 1. Get owned items BEFORE
+//        ArrayList<Integer> beforeItems = getOwnedShopItems(userID);
+//        System.out.println("Before purchase: " + beforeItems);
+//
+//        // 2. Attempt to buy the item
+//        boolean bought = myDBHelper.buyItem(userID, itemID);
+//        System.out.println("Item bought: " + bought);
+//
+//        // 3. Get owned items AFTER
+//        ArrayList<Integer> afterItems = getOwnedShopItems(userID);
+//        System.out.println("After purchase: " + afterItems);
+//    }
 
 
     public void testGetRandomSuggestion(){
@@ -328,11 +328,11 @@ public class MainActivity extends AppCompatActivity {
         testList = getOwnedAvatars(1);
         System.out.println(testList);
     }
-    private void testShopItemOwnership(){
-        ArrayList<Integer> testList = new ArrayList<Integer>();
-        testList = getOwnedShopItems(1);
-        System.out.println(testList);
-    }
+//    private void testShopItemOwnership(){
+//        ArrayList<Integer> testList = new ArrayList<Integer>();
+//        testList = getOwnedShopItems(1);
+//        System.out.println(testList);
+//    }
 
     private void testGetUserID(){
         //System.out.println("Testing getUserID");

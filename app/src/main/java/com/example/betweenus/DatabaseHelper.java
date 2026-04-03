@@ -1603,86 +1603,87 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return R.drawable.bunny_happy; // fallback
     }
 
-    public List<ShopItem> getShopItems() {
+    public ArrayList<ShopItem> getAllShopItems() {
 
-        List<ShopItem> ShopItemList = new ArrayList<>();
-
+        ArrayList<ShopItem> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String queryStr = "SELECT * FROM " + TABLE_SHOP;
+        Cursor cursor = db.rawQuery("SELECT * FROM shop", null);
 
-        Cursor cursor = db.rawQuery(queryStr, null);
-
-        if (cursor != null) {
-
-            int ItemIDIndex = cursor.getColumnIndexOrThrow(COL_ITEM_ID);
-            int ItemNameIndex = cursor.getColumnIndexOrThrow(COL_ITEM_NAME);
-            int ItemDescriptionIndex = cursor.getColumnIndexOrThrow(COL_ITEM_DESCRIPTION);
-            int ItemPriceIndex = cursor.getColumnIndexOrThrow(COL_ITEM_PRICE);
-            int ItemImagePathIndex = cursor.getColumnIndexOrThrow(COL_ITEM_IMAGE_PATH);
-
-            while (cursor.moveToNext()) {
-
-                int id = cursor.getInt(ItemIDIndex);
-                String name = cursor.getString(ItemNameIndex);
-                String description = cursor.getString(ItemDescriptionIndex);
-                int price = cursor.getInt(ItemPriceIndex);
-                String imagePath = cursor.getString(ItemImagePathIndex);
-
-                ShopItem newShopItem = new ShopItem(id, name, description, price, imagePath);
-                ShopItemList.add(newShopItem);
-            }
-
-            cursor.close();
-        }
-
-        return ShopItemList;
-    }
-
-    public ArrayList<Integer> getShopItemsOwned(int UserID) {
-        ArrayList<Integer> ownedShopItems = new ArrayList<Integer>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT " + COL_SHOP_ITEM_OWNED + " FROM " + TABLE_SHOP_ITEM_OWNERSHIP +
-                " WHERE " + COL_USER_ID + " = ?";
-
-        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(UserID)});
-
-
-        if (cursor.moveToFirst()) {
-            do {
-                ownedShopItems.add(cursor.getInt(0));
-            } while (cursor.moveToNext());
+        while (cursor.moveToNext()) {
+            list.add(new ShopItem(
+                    cursor.getInt(0),
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    cursor.getInt(3),
+                    cursor.getString(4)
+            ));
         }
 
         cursor.close();
-
-        return ownedShopItems;
+        return list;
     }
 
-    public boolean buyItem(int UserID, int ShopItemID) {
+    public ArrayList<ShopItem> getShopItemsOwned(int UserID) {
+        ArrayList<ShopItem> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(
+                "SELECT s.* FROM shop s " +
+                        "INNER JOIN shopitemownership o " +
+                        "ON s.itemID = o.ShopItemOwned " +
+                        "WHERE o.UserID=?",
+                new String[]{String.valueOf(currentUserId)}
+        );
+
+        while (cursor.moveToNext()) {
+            list.add(new ShopItem(
+                    cursor.getInt(0),
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    cursor.getInt(3),
+                    cursor.getString(4)
+            ));
+        }
+
+        cursor.close();
+        return list;
+    }
+
+    public boolean isItemOwned(int userId, int itemId) {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(
+                "SELECT * FROM shopitemownership WHERE UserID=? AND ShopItemOwned=?",
+                new String[]{String.valueOf(userId), String.valueOf(itemId)}
+        );
+
+        boolean owned = cursor.moveToFirst();
+        cursor.close();
+
+        return owned;
+    }
+
+    public boolean buyItem(int userId, ShopItem item) {
+
+        if (isItemOwned(userId, item.getItemID())) return false;
+
+        int currentPoints = getUserPoints(userId);
+
+        if (currentPoints < item.getItemPrice()) return false;
+
         SQLiteDatabase db = this.getWritableDatabase();
 
-        String query = "SELECT 1 FROM " + TABLE_SHOP_ITEM_OWNERSHIP +
-                " WHERE " + COL_USER_ID + " = ? AND " + COL_SHOP_ITEM_OWNED + " = ?";
+        // deduct points
+        db.execSQL("UPDATE users SET Points = Points - ? WHERE UserID=?",
+                new Object[]{item.getItemPrice(), userId});
 
-        Cursor cursor = db.rawQuery(query, new String[]{
-                String.valueOf(UserID),
-                String.valueOf(ShopItemID)
-        });
+        // add ownership
+        db.execSQL("INSERT INTO shopitemownership (UserID, ShopItemOwned) VALUES (?,?)",
+                new Object[]{userId, item.getItemID()});
 
-        boolean exists = cursor.moveToFirst();
-        cursor.close();
-
-        if (exists) {
-            return false; // already exists
-        }
-
-        ContentValues values = new ContentValues();
-        values.put(COL_USER_ID, UserID);
-        values.put(COL_SHOP_ITEM_OWNED, ShopItemID);
-
-        long result = db.insert(TABLE_SHOP_ITEM_OWNERSHIP, null, values);
-        return result != -1;
+        return true;
     }
 
     public boolean spendUserPoints(int UserID, int points) {
