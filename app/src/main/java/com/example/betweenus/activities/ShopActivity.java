@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.betweenus.R;
 
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +36,10 @@ public class ShopActivity extends AppCompatActivity {
 
         points = findViewById(R.id.tvCoins);
         points.setText(String.valueOf(db.getUserPoints(currentUserID)));
+
+        ImageButton backBtn = findViewById(R.id.btn_back);
+
+        backBtn.setOnClickListener(v -> finish());
 
 
         loadShop();

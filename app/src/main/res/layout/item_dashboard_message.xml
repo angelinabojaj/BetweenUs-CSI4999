@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/txtMessage"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Good luck today!"
-    android:textSize="14sp"
-    android:paddingBottom="6dp"/>

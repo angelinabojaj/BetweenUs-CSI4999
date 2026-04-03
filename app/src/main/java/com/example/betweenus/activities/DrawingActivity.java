@@ -3,6 +3,7 @@ package com.example.betweenus.activities;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -33,6 +34,9 @@ public class DrawingActivity extends AppCompatActivity {
         DrawingView drawingView = findViewById(R.id.drawingView);
         Button btnSave = findViewById(R.id.btn_save);
 
+        ImageButton backBtn = findViewById(R.id.btn_back);
+
+
         btnSave.setOnClickListener(v -> {
             Bitmap bitmap = drawingView.getBitmap();
 
@@ -49,5 +53,8 @@ public class DrawingActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         });
+
+        backBtn.setOnClickListener(v -> finish());
+
     }
 }

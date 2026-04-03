@@ -25,7 +25,7 @@ import com.example.betweenus.activities.DrawingActivity;
 import com.example.betweenus.R;
 import com.example.betweenus.adapter.AvatarAdapter;
 import com.example.betweenus.adapter.AvatarPagerAdapter;
-import com.example.betweenus.adapter.DashboardAdapter;
+//import com.example.betweenus.adapter.DashboardAdapter;
 import com.example.betweenus.adapter.TodoPreviewAdapter;
 import com.example.betweenus.model.AvatarGroup;
 import com.example.betweenus.model.User;
@@ -41,7 +41,7 @@ public class HomeFragment extends Fragment {
     private ImageButton moodHappy, moodNeutral, moodSad, moodAngry, moodExcited;
     private ViewPager2 avatarPager;
 
-    private DashboardAdapter dashboardAdapter;
+//    private DashboardAdapter dashboardAdapter;
     private AvatarAdapter avatarAdapter;
     private TodoPreviewAdapter todoPreviewAdapter;
 

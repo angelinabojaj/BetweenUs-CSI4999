@@ -4,15 +4,22 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_margin="8dp"
-    app:cardCornerRadius="24dp"
+    app:cardCornerRadius="20dp"
     app:cardElevation="6dp"
     app:cardBackgroundColor="#FFFFFF">
 
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#3290c8"
+        android:padding="3dp">
+    <LinearLayout
         android:orientation="vertical"
         android:padding="12dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@drawable/image_round"
+        android:backgroundTint="@color/white">
 
         <!-- PREVIEW IMAGE -->
         <ImageView
@@ -58,7 +65,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:background="@drawable/image_round"
-                android:backgroundTint="#F4A261"
+                android:backgroundTint="#FF934C"
                 android:padding="6dp">
 
                 <ImageView
@@ -86,6 +93,8 @@
                 android:layout_marginStart="10dp"
                 android:backgroundTint="#A0C4FF"
                 android:textColor="@android:color/white"/>
+
+        </LinearLayout>
 
         </LinearLayout>
 

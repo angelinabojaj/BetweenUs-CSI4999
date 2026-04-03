@@ -60,6 +60,10 @@ public class PomodoroActivity extends AppCompatActivity {
         btnSound = findViewById(R.id.btnSound);
         btnSettings = findViewById(R.id.btn_timer_settings);
 
+        ImageButton backBtn = findViewById(R.id.btn_back);
+
+        backBtn.setOnClickListener(v -> finish());
+
 
         if (isTestMode) {
             tvTime.setText(String.format("00:%02d", testFocusSeconds));
