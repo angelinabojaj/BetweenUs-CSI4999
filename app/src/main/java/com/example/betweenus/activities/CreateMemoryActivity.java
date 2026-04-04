@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -46,6 +47,10 @@ public class CreateMemoryActivity extends AppCompatActivity {
 
         btnSelectImage = findViewById(R.id.btn_select_image);
         imagePreview = findViewById(R.id.image_preview);
+
+        ImageButton backButton = findViewById(R.id.btn_back);
+        backButton.setOnClickListener(v -> finish());
+
 
         dbHelper = new DatabaseHelper(this);
 
