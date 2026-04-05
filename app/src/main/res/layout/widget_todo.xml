@@ -9,10 +9,11 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TO DO"
+        android:text="TO • DO"
+        android:layout_gravity="center"
         android:textStyle="bold"
         android:textSize="16sp"
-        android:textColor="#7A1E3A"
+        android:textColor="#3290c8"
         android:layout_marginBottom="6dp"/>
 
     <androidx.recyclerview.widget.RecyclerView

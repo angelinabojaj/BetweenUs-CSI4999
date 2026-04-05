@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-
     android:id="@+id/taskCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="16dp"
-
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginBottom="12dp"
     app:cardBackgroundColor="#F6A6A6"
-    app:cardCornerRadius="18dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp">
 
     <RelativeLayout
         android:id="@+id/taskContainer"
@@ -18,70 +16,59 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <!-- Avatar -->
-
-        <ImageView
-            android:id="@+id/assignerProfileImage"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/task_complete_checkbox"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:padding="6dp"
-            android:src="@drawable/profilebtn_filled"
-            app:tint="@color/white" />
+            android:button="@drawable/task_checkbox"
+            app:buttonTint="@color/white"
+            />
 
-
-        <!-- Task Title -->
-
-        <TextView
-            android:id="@+id/taskTitle"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
             android:layout_centerVertical="true"
-            android:layout_marginStart="12dp"
-            android:layout_toEndOf="@id/assignerProfileImage"
-
-            android:text="Complete homework"
-            android:textColor="#3A3A3A"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/taskTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/taskTitle"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="4dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@id/deleteTaskButton"
             android:layout_toEndOf="@id/task_complete_checkbox"
-            android:text="time: 30min"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="14sp" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/taskTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="Complete homework"
+                android:textColor="#3A3A3A"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/taskTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:alpha="0.8"
+                android:text="8:00 am"
+                android:textColor="#212121"
+                android:textSize="13sp" />
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/deleteTaskButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:background="@android:color/transparent"
-            android:contentDescription="Delete Task"
+
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:paddingBottom="15dp"
+            android:scaleType="centerCrop"
             android:src="@drawable/delete_taskbtn"
             app:tint="@color/white" />
-
-
-        <!-- Checkbox -->
-
-        <CheckBox
-            android:id="@+id/task_complete_checkbox"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:button="@drawable/task_checkbox"
-            android:buttonTint="#2E81BA" />
-
 
     </RelativeLayout>
 

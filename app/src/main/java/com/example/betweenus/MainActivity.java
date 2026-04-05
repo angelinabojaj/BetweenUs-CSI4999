@@ -56,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
         testGetShopItems();
         //testUpdateTaskGoal();
 
+        myDBHelper.insertSampleData();
+
+
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());

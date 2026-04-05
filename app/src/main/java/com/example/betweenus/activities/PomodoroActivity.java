@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public class PomodoroActivity extends AppCompatActivity {
 
-    private boolean isTestMode = true; //for testing
+    private boolean isTestMode = false; //for testing
 
     private int testFocusSeconds = 30;
     private int testBreakSeconds = 10;
@@ -92,17 +92,24 @@ public class PomodoroActivity extends AppCompatActivity {
         // ▶️ PLAY / STOP
         btnPlay.setOnClickListener(v -> {
             if (!isRunning) {
+                // START TIMER
                 btnPlay.setImageResource(R.drawable.timer_end_btn);
                 startSession();
                 isRunning = true;
             } else {
                 btnPlay.setImageResource(R.drawable.timer_start_btn);
-                timerManager.stop();
-
-                stopSound();
-                isRunning = false;
+                new AlertDialog.Builder(this)
+                        .setTitle("Stop Timer?")
+                        .setMessage("Are you sure you want to stop? Your progress for this round will be reset.")
+                        .setPositiveButton("Stop", (dialog, which) -> {
+                            stopAndResetTimer();
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
             }
         });
+
+
 
         // 🔊 SOUND
         btnSound.setOnClickListener(v -> {
@@ -206,6 +213,28 @@ public class PomodoroActivity extends AppCompatActivity {
         });
 
         menu.show();
+    }
+    private void stopAndResetTimer() {
+        // 1. Stop technical components
+        timerManager.stop();
+        stopSound();
+        isRunning = false;
+
+        // 2. Update Toggle Button
+        btnPlay.setImageResource(R.drawable.timer_start_btn);
+
+        // 3. Reset UI Visuals
+        circleTimer.setProgress(100); // Reset progress bar to full (or 0 depending on your logic)
+
+        // 4. Reset Text based on current mode
+        if (isTestMode) {
+            tvTime.setText(String.format("00:%02d", testFocusSeconds));
+        } else {
+            int displayMins = isFocusPhase ? focusMinutes : breakMinutes;
+            tvTime.setText(String.format("%02d:00", displayMins));
+        }
+
+        Toast.makeText(this, "Timer Reset", Toast.LENGTH_SHORT).show();
     }
 
     private void showSoundDialog() {
@@ -359,5 +388,16 @@ public class PomodoroActivity extends AppCompatActivity {
                 .setMessage("Great job!")
                 .setPositiveButton("Yay!", null)
                 .show();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (isRunning) {
+            timerManager.stop();
+            stopSound();
+            isRunning = false;
+            btnPlay.setImageResource(R.drawable.timer_start_btn);
+        }
     }
 }

@@ -18,7 +18,7 @@ public class SharedTodoViewModel extends ViewModel {
     }
 
     public void loadTasks(DatabaseHelper dbHelper, int userId) {
-        List<Task> taskList = dbHelper.getTasksForUser(userId); // need to make db function to get tasks assigned for a specific user
+        List<Task> taskList = dbHelper.getTasksForUser(userId);
         tasks.setValue(taskList);
     }
 }

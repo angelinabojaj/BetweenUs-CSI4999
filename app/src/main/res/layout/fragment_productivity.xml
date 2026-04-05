@@ -48,18 +48,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="#FFADAD" />
 
-    <ImageButton
-        android:id="@+id/btn_stats"
-        android:layout_width="35dp"
-        android:layout_height="40dp"
-        android:layout_margin="12dp"
-        android:background="@android:color/transparent"
-        android:elevation="7dp"
-        android:scaleType="fitCenter"
-        android:src="@drawable/stats_btn"
-        app:layout_constraintStart_toEndOf="@id/btn_pomodoro"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="#A8E6CF" />
 
     <ImageButton
         android:id="@+id/btn_suggestion"

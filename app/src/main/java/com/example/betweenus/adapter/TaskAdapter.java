@@ -16,7 +16,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.betweenus.R;
 import com.example.betweenus.model.Task;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
 
@@ -25,7 +29,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     public interface OnTaskActionListener {
         void onTaskDelete(Task task);
-        void onTaskComplete(Task task);
+        void onTaskToggle(Task task, boolean isComplete);
         void onTaskEdit(Task task);
     }
 
@@ -46,7 +50,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         Task task = taskList.get(position);
         
         holder.tvTitle.setText(task.getTaskGoal());
-        holder.tvTime.setText("Due: " + task.getDueDate());
+        String displayTime = getRelativeTime(task.getDueDate());
+        holder.tvTime.setText(displayTime);
 
         int[] colors = {
                 Color.parseColor("#F6A6A6"), // pink
@@ -61,9 +66,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         holder.cbComplete.setChecked(task.isComplete());
         updateStrikethrough(holder.tvTitle, task.isComplete());
 
-        holder.cbComplete.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked && listener != null) {
-                listener.onTaskComplete(task);
+        // Use OnClickListener to handle user interaction and propagate to DB
+        holder.cbComplete.setOnClickListener(v -> {
+            boolean isChecked = holder.cbComplete.isChecked();
+            updateStrikethrough(holder.tvTitle, isChecked);
+            if (listener != null) {
+                listener.onTaskToggle(task, isChecked);
             }
         });
 
@@ -83,8 +91,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     private void updateStrikethrough(TextView textView, boolean isComplete) {
         if (isComplete) {
             textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            textView.setAlpha(0.6f);
         } else {
             textView.setPaintFlags(textView.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+            textView.setAlpha(1.0f);
         }
     }
 
@@ -111,6 +121,38 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             btnDelete = itemView.findViewById(R.id.deleteTaskButton);
             taskCard = itemView.findViewById(R.id.taskCard);
             cbComplete = itemView.findViewById(R.id.task_complete_checkbox);
+        }
+    }
+
+    private String getRelativeTime(String dateStr) {
+        try {
+            SimpleDateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+            Date date = dbFormat.parse(dateStr);
+            if (date == null) return dateStr;
+
+            Calendar now = Calendar.getInstance();
+            Calendar taskCal = Calendar.getInstance();
+            taskCal.setTime(date);
+
+            SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
+            SimpleDateFormat fullFormat = new SimpleDateFormat("MMM, d", Locale.getDefault());
+
+            String timePart = timeFormat.format(date).toLowerCase();
+
+            if (now.get(Calendar.YEAR) == taskCal.get(Calendar.YEAR) &&
+                    now.get(Calendar.DAY_OF_YEAR) == taskCal.get(Calendar.DAY_OF_YEAR)) {
+                return "Today " + timePart;
+            }
+
+            now.add(Calendar.DAY_OF_YEAR, 1);
+            if (now.get(Calendar.YEAR) == taskCal.get(Calendar.YEAR) &&
+                    now.get(Calendar.DAY_OF_YEAR) == taskCal.get(Calendar.DAY_OF_YEAR)) {
+                return "Tmr " + timePart;
+            }
+
+            return fullFormat.format(date) + " " + timePart;
+        } catch (Exception e) {
+            return dateStr;
         }
     }
 }

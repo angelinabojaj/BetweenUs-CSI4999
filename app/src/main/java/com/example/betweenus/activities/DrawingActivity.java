@@ -54,7 +54,14 @@ public class DrawingActivity extends AppCompatActivity {
             }
         });
 
-        backBtn.setOnClickListener(v -> finish());
+        if (backBtn == null) {
+            Toast.makeText(this, "Error: Back button not found in XML!", Toast.LENGTH_LONG).show();
+        } else {
+            backBtn.setOnClickListener(v -> {
+                // Use the modern dispatcher instead of just finish()
+                getOnBackPressedDispatcher().onBackPressed();
+            });
+        }
 
     }
 }

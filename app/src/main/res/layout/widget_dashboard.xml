@@ -11,6 +11,8 @@
         android:layout_height="wrap_content"
         android:text="DASHBOARD"
         android:textStyle="bold"
+        android:textColor="#3290c8"
+        android:layout_gravity="center"
         android:textSize="16sp"
         android:layout_marginBottom="6dp"/>
 

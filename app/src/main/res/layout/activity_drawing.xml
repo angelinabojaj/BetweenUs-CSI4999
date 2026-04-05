@@ -8,6 +8,11 @@
     android:background="@drawable/bg"
     tools:context=".activities.DrawingActivity">
 
+    <com.example.betweenus.DrawingView
+        android:id="@+id/drawingView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -34,6 +39,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_margin="12dp"
+
             android:elevation="7dp"
             android:background="@android:color/transparent"
             android:src="@drawable/back_arrow"
@@ -57,12 +63,6 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-
-    <!-- DRAWING CANVAS -->
-    <com.example.betweenus.DrawingView
-        android:id="@+id/drawingView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
     <!-- DIM OVERLAY (outside visible area) -->
     <View

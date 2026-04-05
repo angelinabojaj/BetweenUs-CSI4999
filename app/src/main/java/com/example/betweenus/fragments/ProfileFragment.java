@@ -4,13 +4,18 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import java.text.SimpleDateFormat;
@@ -19,6 +24,8 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
+
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,6 +34,7 @@ import com.applandeo.materialcalendarview.EventDay;
 import com.example.betweenus.DatabaseHelper;
 import com.example.betweenus.R;
 import com.example.betweenus.activities.ProfileDetailActivity;
+import com.example.betweenus.activities.ReportActivity;
 import com.example.betweenus.activities.ShopActivity;
 import com.example.betweenus.adapter.ChatListAdapter;
 import com.example.betweenus.adapter.ScheduleAdapter;
@@ -40,7 +48,7 @@ public class ProfileFragment extends Fragment {
 
     private TextView friendsCount, addFriendLink, username, bio;
 
-    private ImageButton shopbtn;
+    private ImageButton shopbtn, btnStats;
     private ShapeableImageView pfp;
     private DatabaseHelper dbHelper;
 
@@ -57,12 +65,47 @@ public class ProfileFragment extends Fragment {
         friendsCount = view.findViewById(R.id.friendsCount);
         addFriendLink = view.findViewById(R.id.addFriendLink);
         shopbtn = view.findViewById(R.id.btn_shop);
+        btnStats = view.findViewById(R.id.btn_stats);
 
         View weeklyScrollView = view.findViewById(R.id.weeklyScrollView);
         GridLayout weeklyContainer = view.findViewById(R.id.weeklyContainer);
 
+        View calendarContainer = view.findViewById(R.id.googleCalendarContainer);
+        View premiumPlaceholder = view.findViewById(R.id.premiumPlaceholder);
         TextView btnMonthly = view.findViewById(R.id.btn_monthly);
         TextView btnWeekly = view.findViewById(R.id.btn_Weekly);
+
+
+
+
+        if (dbHelper.isUserPremium(dbHelper, dbHelper.currentUserId)) {
+            // USER IS PREMIUM
+            calendarContainer.setVisibility(View.VISIBLE);
+            premiumPlaceholder.setVisibility(View.GONE);
+
+            btnMonthly.setEnabled(true);
+            btnWeekly.setEnabled(true);
+        } else {
+            shopbtn.setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+            shopbtn.setAlpha(0.6f);
+
+            btnStats.setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+            btnStats.setAlpha(0.6f);
+
+            calendarContainer.setVisibility(View.GONE);
+            premiumPlaceholder.setVisibility(View.VISIBLE);
+
+            btnMonthly.setEnabled(false);
+            btnWeekly.setEnabled(false);
+            btnMonthly.setAlpha(0.5f);
+            btnWeekly.setAlpha(0.5f);
+
+
+            view.findViewById(R.id.btn_get_premium).setOnClickListener(v -> {
+                Toast.makeText(getContext(), "Redirecting to Premium Shop...", Toast.LENGTH_SHORT).show();
+            });
+        }
+
 
         btnMonthly.setOnClickListener(v -> {
             view.findViewById(R.id.materialCalendarView).setVisibility(View.VISIBLE);
@@ -73,6 +116,18 @@ public class ProfileFragment extends Fragment {
             view.findViewById(R.id.materialCalendarView).setVisibility(View.GONE);
             if (weeklyScrollView != null) weeklyScrollView.setVisibility(View.VISIBLE);
             setupWeeklyView(view);
+        });
+
+        btnStats.setOnClickListener(v -> {
+
+            if (dbHelper.isUserPremium(dbHelper, dbHelper.currentUserId)) {
+
+                Intent intent = new Intent(getActivity(), ReportActivity.class);
+                startActivity(intent);
+
+            } else {
+                Toast.makeText(getContext(), "Premium feature 🌟", Toast.LENGTH_SHORT).show();
+            }
         });
 
         loadUserData();
@@ -86,11 +141,20 @@ public class ProfileFragment extends Fragment {
         });
 
         shopbtn.setOnClickListener(v -> {
-            startActivity(new Intent(getActivity(), ShopActivity.class));
+            if (dbHelper.isUserPremium(dbHelper, dbHelper.currentUserId)) {
+
+                Intent intent = new Intent(getActivity(), ShopActivity.class);
+                startActivity(intent);
+
+            } else {
+                Toast.makeText(getContext(), "Premium feature 🌟", Toast.LENGTH_SHORT).show();
+            }
         });
 
-        // call personal schedule
-        setupPersonalSchedule(view);
+        if (dbHelper.isUserPremium(dbHelper, dbHelper.currentUserId)){
+        setupPersonalSchedule(view);}
+
+
 
         return view;
     }
@@ -181,19 +245,66 @@ public class ProfileFragment extends Fragment {
             // Filter tasks for this day
             List<ScheduleItem> dayTasks = new ArrayList<>();
 
+
+
             for (Task t : tasks) {
                 if (t.getDueDate().startsWith(dateStr)) {
-                    dayTasks.add(new ScheduleItem("Due", t.getTaskGoal()));
+                    String formattedTime = "";
+                    try {
+                        SimpleDateFormat fullDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+
+                        SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
+
+                        Date date = fullDateFormat.parse(t.getDueDate());
+                        if (date != null) {
+                            formattedTime = timeFormat.format(date).toLowerCase(); // .toLowerCase() makes it "am" instead of "AM"
+                        }
+                    } catch (Exception e) {
+                        formattedTime = "All Day";
+                    }
+
+                    dayTasks.add(new ScheduleItem(formattedTime, t.getTaskGoal()));
                 }
             }
 
-            // Setup RecyclerView
-            recycler.setLayoutManager(new LinearLayoutManager(getContext()));
-            recycler.setAdapter(new ScheduleAdapter(dayTasks));
+            int[] colors = {
+                    Color.parseColor("#F6A6A6"), // pink
+                    Color.parseColor("#FFD166"), // yellow
+                    Color.parseColor("#A8E6CF"), // green
+                    Color.parseColor("#F4A261")  // orange
+            };
 
-            // Highlight TODAY
+            TextView tvEmpty = dayView.findViewById(R.id.tv_empty_state);
+
+            if (dayTasks.isEmpty()) {
+                tvEmpty.setVisibility(View.VISIBLE);
+                recycler.setVisibility(View.GONE);
+            } else {
+                tvEmpty.setVisibility(View.GONE);
+                recycler.setVisibility(View.VISIBLE);
+                dayTasks.sort((o1, o2) -> o1.getTime().compareTo(o2.getTime()));
+            }
+
+            recycler.setLayoutManager(new LinearLayoutManager(getContext()));
+            recycler.setAdapter(new ScheduleAdapter(dayTasks, colors));
+
+            LinearLayout container = (LinearLayout) dayView;
+
+
             if (dateStr.equals(today)) {
-                dayView.setBackgroundResource(R.drawable.bg_safe_area);
+                dayTitle.setTextColor(Color.parseColor("#3290c8"));
+
+                GradientDrawable border = new GradientDrawable();
+                border.setColor(Color.parseColor("#A2FFFEFE"));
+                border.setCornerRadius(40);
+                border.setStroke(5, Color.parseColor("#3290c8"));
+                container.setBackground(border);
+
+            } else {
+                dayTitle.setTextColor(Color.BLACK);
+                container.setBackgroundResource(R.drawable.image_round);
+                container.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#A2FFFEFE")));
             }
 
             // Add to grid
@@ -209,9 +320,6 @@ public class ProfileFragment extends Fragment {
         com.applandeo.materialcalendarview.CalendarView calendarView = view.findViewById(R.id.materialCalendarView);
 
         List<Task> tasks = dbHelper.getTasksForUser(dbHelper.currentUserId);
-
-        // Highlight today
-        calendarView.setHighlightedDays(Collections.singletonList(Calendar.getInstance()));
 
 
         // EVENTS (DOTS)

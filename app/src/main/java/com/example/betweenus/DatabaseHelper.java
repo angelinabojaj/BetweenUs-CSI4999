@@ -614,6 +614,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     //marks task complete
+
+
+
     public void markTaskComplete(int taskID) {
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -623,6 +626,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 " WHERE " + COL_TASK_ID + " = ?";
 
         db.execSQL(updateQuery, new Object[]{taskID});
+    }
+
+    public void toggleTaskStatus(int taskID, boolean isNowComplete) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        // Convert boolean to 1 or 0 for SQLite
+        values.put(COL_IS_COMPLETE, isNowComplete ? 1 : 0);
+
+        db.update(TABLE_TASKS, values, COL_TASK_ID + " = ?", new String[]{String.valueOf(taskID)});
+        db.close();
     }
 
     public void deleteTask(int taskID) {

@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.betweenus.R;
@@ -21,11 +22,12 @@ import java.util.List;
 // - Bind time + activity title
 
 public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHolder> {
-
+    private int[] taskColors;
     private List<ScheduleItem> scheduleList;
 
-    public ScheduleAdapter(List<ScheduleItem> scheduleList) {
+    public ScheduleAdapter(List<ScheduleItem> scheduleList, int[] colors) {
         this.scheduleList = scheduleList;
+        this.taskColors = colors;
     }
 
     @NonNull
@@ -41,6 +43,9 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
         ScheduleItem item = scheduleList.get(position);
         holder.time.setText(item.getTime());
         holder.title.setText(item.getTitle());
+        if (taskColors != null && taskColors.length > 0 && holder.itemView instanceof CardView) {
+            ((CardView) holder.itemView).setCardBackgroundColor(taskColors[position % taskColors.length]);
+        }
     }
 
     @Override
@@ -58,4 +63,3 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
         }
     }
 }
-// checking to see if it works

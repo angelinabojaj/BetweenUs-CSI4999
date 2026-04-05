@@ -1,6 +1,7 @@
 package com.example.betweenus.activities;
 
 import android.os.Bundle;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,9 +39,15 @@ public class ReportActivity extends AppCompatActivity {
         tvWeek = findViewById(R.id.tvWeek);
         tvMonth = findViewById(R.id.tvMonth);
         tvAvg = findViewById(R.id.tvAvg);
-        tvSuccess = findViewById(R.id.tvSuccess);
+//        tvSuccess = findViewById(R.id.tvSuccess);
 
         barChart = findViewById(R.id.barChart);
+
+
+
+        ImageButton backbtn = findViewById(R.id.btn_back);
+        backbtn.setOnClickListener(v -> finish());
+
 
         loadData();
     }
@@ -62,7 +69,7 @@ public class ReportActivity extends AppCompatActivity {
         tvWeek.setText("🗓 Week: " + formatTime(week));
         tvMonth.setText("🌙 Month: " + formatTime(month));
         tvAvg.setText("📊 Avg Session: " + String.format("%.1f min", avg));
-        tvSuccess.setText("✨ Success Rate: " + String.format("%.0f%%", success));
+//        tvSuccess.setText("✨ Success Rate: " + String.format("%.0f%%", success));
 
         setupChart(db);
     }
