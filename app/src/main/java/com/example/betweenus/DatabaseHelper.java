@@ -56,7 +56,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL_User_ID = "UserID";
     private static final String COL_AVATAR_OWNED = "AvatarOwned";
 
-    // shopitemownership Table !
+    // shopitemownership Table
     private static final String TABLE_SHOP_ITEM_OWNERSHIP = "shopitemownership";
     private static final String COL_SHOP_ITEM_OWNERSHIP = "OwnershipID";
     private static final String COL_BUYER_ID = "UserID";
@@ -793,6 +793,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.rawQuery(searchQuery, null);
     }
 
+    public Cursor getFriendsMemories(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Subquery to get friend IDs
+        String friendIdsSubquery = "SELECT " + COL_FIRST_FRIEND_ID + " FROM " + TABLE_FRIENDS + " WHERE " + COL_SECOND_FRIEND_ID + " = " + userId +
+                " UNION " +
+                "SELECT " + COL_SECOND_FRIEND_ID + " FROM " + TABLE_FRIENDS + " WHERE " + COL_FIRST_FRIEND_ID + " = " + userId +
+                " UNION SELECT " + userId; // Also include current user's memories
+
+        String searchQuery =
+                "SELECT * FROM " + TABLE_MEMORIES + " " +
+                        "JOIN " + TABLE_USERS + " " +
+                        "ON " + TABLE_MEMORIES + "." + COL_POSTER_ID +
+                        " = " + TABLE_USERS + "." + COL_USER_ID + " " +
+                        "WHERE " + COL_POSTER_ID + " IN (" + friendIdsSubquery + ") " +
+                        "ORDER BY " + COL_TIME_STAMP + " DESC";
+
+        return db.rawQuery(searchQuery, null);
+    }
+
 
     //returns list of All memories
     public List<MemoriesItem> getMemorieList() {
@@ -891,7 +911,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 //                String memoryBody = cursor.getString(bodyIndex);
 //                String mediaType = cursor.getString(mediaTypeIndex);
 //                String mediaURL = cursor.getString(mediaUrlIndex);
-//                String timeStamp = cursor.getString(timeStampIndex);
+//                String timeStamp = cursor.getString(timestampIndex);
 //                int likes = cursor.getInt(likesIndex);
 //
 //                MemoriesItem memory = new MemoriesItem(
