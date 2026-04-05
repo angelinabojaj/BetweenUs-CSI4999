@@ -251,17 +251,26 @@ public class ProfileFragment extends Fragment {
                 if (t.getDueDate().startsWith(dateStr)) {
                     String formattedTime = "";
                     try {
-                        SimpleDateFormat fullDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                        // Use multiple formats to be safe
+                        String[] formats = {"yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm"};
+                        Date date = null;
+                        for (String f : formats) {
+                            try {
+                                SimpleDateFormat sdf = new SimpleDateFormat(f, Locale.getDefault());
+                                date = sdf.parse(t.getDueDate());
+                                if (date != null) break;
+                            } catch (Exception ignored) {}
+                        }
 
-
-                        SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
-
-                        Date date = fullDateFormat.parse(t.getDueDate());
                         if (date != null) {
-                            formattedTime = timeFormat.format(date).toLowerCase(); // .toLowerCase() makes it "am" instead of "AM"
+                            SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
+                            formattedTime = timeFormat.format(date).toLowerCase();
+                        } else {
+                             // If no time is present in string, fallback to showing date only
+                             formattedTime = t.getDueDate().split(" ")[0];
                         }
                     } catch (Exception e) {
-                        formattedTime = "All Day";
+                        formattedTime = dateStr;
                     }
 
                     dayTasks.add(new ScheduleItem(formattedTime, t.getTaskGoal()));
@@ -330,7 +339,7 @@ public class ProfileFragment extends Fragment {
                 String[] parts = task.getDueDate().split("-");
                 int year = Integer.parseInt(parts[0]);
                 int month = Integer.parseInt(parts[1]) - 1;
-                int day = Integer.parseInt(parts[2]);
+                int day = Integer.parseInt(parts[2].split(" ")[0]); // Fix for dates with time
 
                 Calendar cal = Calendar.getInstance();
                 cal.set(year, month, day);
