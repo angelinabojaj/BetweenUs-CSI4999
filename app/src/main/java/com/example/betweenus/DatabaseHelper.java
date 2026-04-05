@@ -56,7 +56,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL_User_ID = "UserID";
     private static final String COL_AVATAR_OWNED = "AvatarOwned";
 
-    // shopitemownership Table
+    // shopitemownership Table !
     private static final String TABLE_SHOP_ITEM_OWNERSHIP = "shopitemownership";
     private static final String COL_SHOP_ITEM_OWNERSHIP = "OwnershipID";
     private static final String COL_BUYER_ID = "UserID";
